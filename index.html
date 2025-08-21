@@ -156,7 +156,7 @@ th, td {
 <body>
 <h2>Upcoming Events</h2>
 
-<!-- FILTER BAR: Filters will be populated dynamically -->
+<!-- Filter dropdowns with full descriptive default options -->
 <div class="filters">
   <select id="seriesFilter"><option value="">All Series</option></select>
   <select id="hostFilter"><option value="">All Hosts</option></select>
@@ -263,8 +263,8 @@ function parseSeriesDate(seriesDates) {
   let match = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})?/);
   if (match) {
     let month = match[1];
-    let day = match[1];
-    let year = match[2];
+    let day = match;
+    let year = match;
     if (!year) {
       let yearMatch = seriesDates.match(/(\d{4})/g);
       year = yearMatch ? yearMatch[yearMatch.length - 1] : new Date().getFullYear();
@@ -505,11 +505,11 @@ function loadCalendarData() {
       function populateFilterOptions(selectId, values) {
         const sel = document.getElementById(selectId);
         if (!sel) return;
-        sel.innerHTML = '<option value="">All</option>';
+        sel.innerHTML = '<option value="">All Series</option>';
         [...new Set(values.filter(Boolean))].sort().forEach(v => {
           const opt = document.createElement('option');
           opt.value = v;
-          opt.textContent = v;
+          opt.textContent = 'All ' + v;
           sel.appendChild(opt);
         });
       }
