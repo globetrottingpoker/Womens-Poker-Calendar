@@ -320,6 +320,17 @@ function normaliseRegion(regionValue) {
 }
 
 function renderEvent(event, tbody) {
+  const typeMap = {
+    't': '🏆',          // Tournament
+    'tournament': '🏆', // Tournament spelled out
+    'cash': '💵',
+    'mu': '🤝',
+    'www': '🌐'
+  };
+  const typeValue = (event.type || '').toLowerCase();
+  const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
+
+  // Flag logic: blank if 'ONGOING' or hideFlag is 'x'
   let flagHtml = '';
   if (
     !(typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') &&
@@ -329,6 +340,7 @@ function renderEvent(event, tbody) {
     const flagUrl = `https://flagcdn.com/w80/${flagCode}.png`;
     flagHtml = `<img src="${flagUrl}" alt="${flagCode}">`;
   }
+
   const dateCell = formatDateCell(event.eventDate);
   const venueLink = event.venueLink || '';
   const venueName = event.venue || '';
@@ -336,10 +348,7 @@ function renderEvent(event, tbody) {
     venueLink && venueName
       ? `<a href="${venueLink}" target="_blank">${escapeHtml(venueName)}</a>`
       : escapeHtml(venueName);
-  const buyinGtd = escapeHtml(event.buyIn || event['buyIn / GTD'] || '');
-  const typeMap = { cash: '', t: '', www: '', mu: '' };
-  const typeValue = (event.type || '').toLowerCase();
-  const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
+  const buyinGtd = escapeHtml(event.buyIn || event['BuyIn / GTD'] || '');
   const host = escapeHtml(event.host || '');
   const hostLink = event.hostLink || '';
   const hostHtml = hostLink && host ? `<a href="${hostLink}" target="_blank">${host}</a>` : host;
@@ -359,12 +368,13 @@ function renderEvent(event, tbody) {
   const city = escapeHtml(event.city || '');
   const regionDisplay = event.regionDisplay ? escapeHtml(event.regionDisplay) : escapeHtml(event.state || event.region || '');
   const moreInfoText = escapeHtml(event.moreInfo || event.moreInformation || '');
+
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td class="date-cell">${dateCell}</td>
     <td class="flag-cell">${flagHtml}</td>
     <td class="series-cell">${seriesHtml}</td>
-    <td class="event-cell">${escapeHtml(event.event || event.eventName || '')}</td>
+    <td class="event-cell">${escapeHtml(event.event || '')}</td>
     <td class="buyin-cell">${buyinGtd}</td>
     <td class="type-cell">${typeEmoji}</td>
     <td class="host-cell">${hostHtml}</td>
@@ -433,7 +443,7 @@ function loadCalendarData() {
       data.forEach(event => {
         if (!event.Series || !event['Event Date']) return;
 
-        // Map CSV properties to expected names
+        // Map CSV properties correctly
         event.series = event.Series;
         event.eventDate = event['Event Date'];
         event.seriesDates = event['Series Dates'];
@@ -448,6 +458,7 @@ function loadCalendarData() {
         event.buyIn = event['BuyIn / GTD'];
         event.type = event.Type;
         event.moreInfo = event['More Info'];
+        event.event = event.Event; // Fix event name mapping
 
         event.regionDisplay = normaliseRegion(event.state || event.region);
 
