@@ -215,6 +215,8 @@ th, td {
   </div>
 </div>
 <script>
+let tableUpcoming, tablePast;
+
 function escapeHtml(s) {
   if (s == null) return '';
   return String(s).replace(/[&<>"']/g, function (m) {
@@ -329,7 +331,6 @@ function renderEvent(event, tbody) {
   const typeValue = (event.type || '').toString().trim().toLowerCase();
   const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
 
-  // Flag logic: blank if 'ONGOING' or hideFlag is 'x'
   let flagHtml = '';
   if (
     !(typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') &&
@@ -442,7 +443,6 @@ function loadCalendarData() {
       data.forEach(event => {
         if (!event.Series || !event['Event Date']) return;
 
-        // Flexible mapping accepting common header variations
         function getKey(obj, keys) {
           for (const key of keys) {
             if (obj.hasOwnProperty(key)) return obj[key];
@@ -480,7 +480,15 @@ function loadCalendarData() {
       sortEvents(upcomingEvents, true).forEach(event => renderEvent(event, upcomingTbody));
       sortEvents(pastEvents, false).forEach(event => renderEvent(event, pastTbody));
 
-      let tableUpcoming = $('#calendarTable').DataTable({
+      // Destroy existing tables if already initialized
+      if ($.fn.DataTable.isDataTable('#calendarTable')) {
+        tableUpcoming.destroy();
+      }
+      if ($.fn.DataTable.isDataTable('#pastCalendarTable')) {
+        tablePast.destroy();
+      }
+
+      tableUpcoming = $('#calendarTable').DataTable({
         responsive: true,
         scrollX: true,
         paging: true,
@@ -490,7 +498,8 @@ function loadCalendarData() {
         order: [],
         destroy: true
       });
-      let tablePast = $('#pastCalendarTable').DataTable({
+
+      tablePast = $('#pastCalendarTable').DataTable({
         responsive: true,
         scrollX: true,
         paging: true,
@@ -504,16 +513,15 @@ function loadCalendarData() {
       function populateFilterOptions(selectId, values, allLabel) {
         const sel = document.getElementById(selectId);
         if (!sel) return;
-        // preserve your existing "All X" option if present
         const firstOpt = sel.querySelector('option[value=""]');
         sel.innerHTML = '';
         if (firstOpt) {
-          sel.appendChild(firstOpt); // keep the "All X" option as-is
+          sel.appendChild(firstOpt);
         } else {
-          const allOption = document.createElement('option');
-          allOption.value = '';
-          allOption.textContent = allLabel;
-          sel.appendChild(allOption);
+          const allOpt = document.createElement('option');
+          allOpt.value = '';
+          allOpt.textContent = allLabel;
+          sel.appendChild(allOpt);
         }
         [...new Set(values.filter(Boolean))].sort().forEach(v => {
           const opt = document.createElement('option');
@@ -522,35 +530,32 @@ function loadCalendarData() {
           sel.appendChild(opt);
         });
       }
-      
-      try {
-        populateFilterOptions('seriesFilter', data.map(e => e.Series || e.series), 'All Series');
-        populateFilterOptions('hostFilter', data.map(e => e.Host || e.host), 'All Hosts');
-        populateFilterOptions('cityFilter', data.map(e => e.City || e.city), 'All Cities');
-        populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.state || e.Region || e.region)), 'All Regions');
-        populateFilterOptions('venueFilter', data.map(e => e.Venue || e.venue), 'All Venues');
-      } catch (err) {
-        console.error('Filter population error:', err);
-      }
+
+      populateFilterOptions('seriesFilter', data.map(e => e.Series || e.series), 'All Series');
+      populateFilterOptions('hostFilter', data.map(e => e.Host || e.host), 'All Hosts');
+      populateFilterOptions('cityFilter', data.map(e => e.City || e.city), 'All Cities');
+      populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.state || e.Region || e.region)), 'All Regions');
+      populateFilterOptions('venueFilter', data.map(e => e.Venue || e.venue), 'All Venues');
 
       const cols = { Series: 2, Host: 6, City: 7, Region: 8, Venue: 9 };
-      $('#seriesFilter').on('change', function () {
+
+      $('#seriesFilter').off('change').on('change', function () {
         tableUpcoming.column(cols.Series).search(this.value).draw();
         tablePast.column(cols.Series).search(this.value).draw();
       });
-      $('#hostFilter').on('change', function () {
+      $('#hostFilter').off('change').on('change', function () {
         tableUpcoming.column(cols.Host).search(this.value).draw();
         tablePast.column(cols.Host).search(this.value).draw();
       });
-      $('#cityFilter').on('change', function () {
+      $('#cityFilter').off('change').on('change', function () {
         tableUpcoming.column(cols.City).search(this.value).draw();
         tablePast.column(cols.City).search(this.value).draw();
       });
-      $('#regionFilter').on('change', function () {
+      $('#regionFilter').off('change').on('change', function () {
         tableUpcoming.column(cols.Region).search(this.value).draw();
         tablePast.column(cols.Region).search(this.value).draw();
       });
-      $('#venueFilter').on('change', function () {
+      $('#venueFilter').off('change').on('change', function () {
         tableUpcoming.column(cols.Venue).search(this.value).draw();
         tablePast.column(cols.Venue).search(this.value).draw();
       });
@@ -574,4 +579,3 @@ $(document).ready(() => {
 </script>
 </body>
 </html>
-
