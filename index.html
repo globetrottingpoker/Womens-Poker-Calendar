@@ -321,13 +321,13 @@ function normaliseRegion(regionValue) {
 
 function renderEvent(event, tbody) {
   const typeMap = {
-    't': '🏆',          // Tournament
-    'tournament': '🏆', // Tournament spelled out
+    't': '🏆',
+    'tournament': '🏆',
     'cash': '💵',
     'mu': '🤝',
     'www': '🌐'
   };
-  const typeValue = (event.type || '').toLowerCase();
+  const typeValue = (event.type || '').toString().trim().toLowerCase();
   const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
 
   // Flag logic: blank if 'ONGOING' or hideFlag is 'x'
@@ -443,29 +443,38 @@ function loadCalendarData() {
       data.forEach(event => {
         if (!event.Series || !event['Event Date']) return;
 
-        // Map CSV properties correctly
-        event.series = event.Series;
-        event.eventDate = event['Event Date'];
-        event.seriesDates = event['Series Dates'];
-        event.host = event.Host;
-        event.city = event.City;
-        event.region = event.Region;
-        event.state = event.State;
-        event.venue = event.Venue;
-        event.venueLink = event['Venue Link'];
-        event.hostLink = event['Host Link'];
-        event.seriesDetails = event['Series Details'];
-        event.buyIn = event['BuyIn / GTD'];
-        event.type = event.Type;
-        event.moreInfo = event['More Info'];
-        event.event = event.Event; // Fix event name mapping
+        // Flexible mapping accepting common header variations
+        function getKey(obj, keys) {
+          for (const key of keys) {
+            if (obj.hasOwnProperty(key)) return obj[key];
+          }
+          return '';
+        }
+
+        event.series      = getKey(event, ['Series', 'series']);
+        event.eventDate   = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']);
+        event.seriesDates = getKey(event, ['Series Dates', 'series dates', 'SeriesDates', 'seriesDates']);
+        event.host        = getKey(event, ['Host', 'host']);
+        event.city        = getKey(event, ['City', 'city']);
+        event.region      = getKey(event, ['Region', 'region']);
+        event.state       = getKey(event, ['State', 'state']);
+        event.venue       = getKey(event, ['Venue', 'venue']);
+        event.venueLink   = getKey(event, ['Venue Link', 'venue link']);
+        event.hostLink    = getKey(event, ['Host Link', 'host link']);
+        event.seriesDetails = getKey(event, ['Series Details', 'series details']);
+        event.buyIn       = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']);
+        event.type        = getKey(event, ['Type', 'type']);
+        event.moreInfo    = getKey(event, ['More Info', 'more info']);
+        event.event       = getKey(event, ['Event', 'event']);
 
         event.regionDisplay = normaliseRegion(event.state || event.region);
 
-        if (isUpcomingEvent(event)) {
-          upcomingEvents.push(event);
-        } else if (isPastEvent(event)) {
-          pastEvents.push(event);
+        if ((event.series && event.eventDate) || (event.series && event.event)) {
+          if (isUpcomingEvent(event)) {
+            upcomingEvents.push(event);
+          } else if (isPastEvent(event)) {
+            pastEvents.push(event);
+          }
         }
       });
 
@@ -506,11 +515,11 @@ function loadCalendarData() {
       }
       
       try {
-        populateFilterOptions('seriesFilter', data.map(e => e.Series));
-        populateFilterOptions('hostFilter', data.map(e => e.Host));
-        populateFilterOptions('cityFilter', data.map(e => e.City));
-        populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.Region)));
-        populateFilterOptions('venueFilter', data.map(e => e.Venue));
+        populateFilterOptions('seriesFilter', data.map(e => e.Series || e.series));
+        populateFilterOptions('hostFilter', data.map(e => e.Host || e.host));
+        populateFilterOptions('cityFilter', data.map(e => e.City || e.city));
+        populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.state || e.Region || e.region)));
+        populateFilterOptions('venueFilter', data.map(e => e.Venue || e.venue));
       } catch (err) {
         console.error('Filter population error:', err);
       }
