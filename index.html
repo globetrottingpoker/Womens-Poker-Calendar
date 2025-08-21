@@ -23,7 +23,7 @@ h2 {
   font-size: 22px;
 }
 .filters { max-width:1200px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:8px; }
-.filters select { padding:6px; font-size:14px; border:1px solid #ccc; border-radius:4px; }
+.filters select { padding:6px; font-size: 14px; border:1px solid #ccc; border-radius: 4px; }
 .dt-container {
   overflow-x: auto;
   margin: 0 auto 40px;
@@ -156,7 +156,6 @@ th, td {
 <body>
 <h2>Upcoming Events</h2>
 
-<!-- Filter dropdowns with full descriptive default options -->
 <div class="filters">
   <select id="seriesFilter"><option value="">All Series</option></select>
   <select id="hostFilter"><option value="">All Hosts</option></select>
@@ -502,24 +501,34 @@ function loadCalendarData() {
         destroy: true
       });
 
-      function populateFilterOptions(selectId, values) {
+      function populateFilterOptions(selectId, values, allLabel) {
         const sel = document.getElementById(selectId);
         if (!sel) return;
-        sel.innerHTML = '<option value="">All Series</option>';
+        // preserve your existing "All X" option if present
+        const firstOpt = sel.querySelector('option[value=""]');
+        sel.innerHTML = '';
+        if (firstOpt) {
+          sel.appendChild(firstOpt); // keep the "All X" option as-is
+        } else {
+          const allOption = document.createElement('option');
+          allOption.value = '';
+          allOption.textContent = allLabel;
+          sel.appendChild(allOption);
+        }
         [...new Set(values.filter(Boolean))].sort().forEach(v => {
           const opt = document.createElement('option');
           opt.value = v;
-          opt.textContent = 'All ' + v;
+          opt.textContent = v;
           sel.appendChild(opt);
         });
       }
       
       try {
-        populateFilterOptions('seriesFilter', data.map(e => e.Series || e.series));
-        populateFilterOptions('hostFilter', data.map(e => e.Host || e.host));
-        populateFilterOptions('cityFilter', data.map(e => e.City || e.city));
-        populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.state || e.Region || e.region)));
-        populateFilterOptions('venueFilter', data.map(e => e.Venue || e.venue));
+        populateFilterOptions('seriesFilter', data.map(e => e.Series || e.series), 'All Series');
+        populateFilterOptions('hostFilter', data.map(e => e.Host || e.host), 'All Hosts');
+        populateFilterOptions('cityFilter', data.map(e => e.City || e.city), 'All Cities');
+        populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.state || e.Region || e.region)), 'All Regions');
+        populateFilterOptions('venueFilter', data.map(e => e.Venue || e.venue), 'All Venues');
       } catch (err) {
         console.error('Filter population error:', err);
       }
@@ -565,3 +574,4 @@ $(document).ready(() => {
 </script>
 </body>
 </html>
+
