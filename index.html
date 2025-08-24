@@ -18,7 +18,7 @@ body {
 }
 h2 {
   text-align: center;
-  margin-bottom: 6px; /* smaller margin since last updated is right below */
+  margin-bottom: 6px;
   color: #000;
   font-size: 22px;
 }
@@ -163,7 +163,7 @@ th, td {
 <body>
 <h2>Upcoming Events</h2>
 
-<!-- Last Updated container -->
+<!-- Last Updated text -->
 <div id="lastUpdatedContainer">
   Last Updated: <span id="lastUpdatedDate">Loading...</span>
 </div>
@@ -256,9 +256,7 @@ function getFlagCode(region, state, city) {
 }
 
 function isOnlineEvent(event) {
-  const keywords = ['www', 'virtual', 'online', 'wpa'];
-  const allFields = ((event.type || '') + ' ' + (event.series || '') + ' ' + (event.event || '')).toLowerCase();
-  return keywords.some(keyword => allFields.includes(keyword));
+  return (event.region || '').toLowerCase() === 'x';
 }
 
 function parseDate(dateStr) {
@@ -340,11 +338,11 @@ function normaliseRegion(regionValue) {
 
 function renderEvent(event, tbody) {
   const typeMap = {
-    't': '',
-    'tournament': '',
-    'cash': '',
-    'mu': '',
-    'www': ''
+    't': '🏆',
+    'tournament': '🏆',
+    'cash': '💵',
+    'mu': '🤝',
+    'www': '🌐'
   };
   const typeValue = (event.type || '').toString().trim().toLowerCase();
   const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
@@ -355,7 +353,7 @@ function renderEvent(event, tbody) {
     (!event.hideFlag || event.hideFlag.toLowerCase() !== 'x')
   ) {
     if (isOnlineEvent(event)) {
-      // Display globe icon for online/virtual events
+      // When region is 'X', show globe icon as flag
       flagHtml = '<img src="icons/globe.png" alt="Online event" style="max-width:32px; display:block; margin-left:auto; margin-right:auto;" />';
     } else {
       const flagCode = getFlagCode(event.region, event.state, event.city);
@@ -618,4 +616,5 @@ $(document).ready(() => {
 </script>
 </body>
 </html>
+
 
