@@ -38,9 +38,7 @@
     font-size: 15px;
     cursor: pointer;
   }
-  .toggle-past-btn:focus {
-    outline: none;
-  }
+  .toggle-past-btn:focus { outline: none; }
   #pastEventsSection.collapsed {
     display: none;
   }
@@ -90,10 +88,7 @@
     margin-left: auto;
     margin-right: auto;
   }
-  .series-cell {
-    white-space: normal;
-    min-width: 135px;
-  }
+  .series-cell { white-space: normal; min-width: 135px; }
   .series-name a,
   .series-name span {
     font-weight: 600;
@@ -135,15 +130,13 @@
     text-decoration: underline;
   }
   @media (max-width: 600px) {
-    table.display,
-    .dt-container {
+    table.display, .dt-container {
       font-size: 0.9em;
     }
     th, td {
       padding: 6px 4px;
     }
-    .state-cell,
-    .moreinfo-cell {
+    .state-cell, .moreinfo-cell {
       display: none;
     }
     .date-cell {
@@ -153,6 +146,7 @@
 </style>
 </head>
 <body>
+
 <h2>Upcoming Events</h2>
 
 <div class="filters">
@@ -162,7 +156,6 @@
   <select id="regionFilter"><option value="">All Regions</option></select>
   <select id="venueFilter"><option value="">All Venues</option></select>
 </div>
-
 <div id="calendarError" style="display:none; color:#b00; background:#fff0f0; padding:18px; border-radius:8px; margin:30px auto; max-width:600px; text-align:center; font-size:1.2em;">
   Sorry, we couldn't load the calendar. Please check your API connection and try again.
 </div>
@@ -187,7 +180,7 @@
   </table>
 </div>
 <button class="toggle-past-btn" id="togglePastEvents">Show Past Events</button>
-<div id="pastEventsSection" class="collapsed">
+<div id="pastEventsSection" class="collapsed" style="display:none;">
   <h2>Past Events</h2>
   <div id="pastCalendarError" style="display:none; color:#b00; background:#fff0f0; padding:18px; border-radius:8px; margin:30px auto; max-width:600px; text-align:center; font-size:1.2em;">
     Sorry, we couldn't load the calendar. Please check your API connection and try again.
@@ -213,6 +206,7 @@
     </table>
   </div>
 </div>
+
 <script>
 let tableUpcoming, tablePast;
 
@@ -326,9 +320,8 @@ function renderEvent(event, tbody) {
   const typeValue = (event.type || '').toString().trim().toLowerCase();
   const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
 
-  // If type is 'www' then flag column must be empty
   let flagHtml = '';
-  if (typeValue !== 'www') {
+  if (typeValue !== 'www') { // Blank flag cell if type is www
     if ((event.region || '').toLowerCase() !== 'x') {
       const flagCode = getFlagCode(event.region, event.state, event.city);
       flagHtml = `<img src="https://flagcdn.com/w80/${flagCode}.png" alt="${flagCode} flag"/>`;
@@ -379,6 +372,8 @@ function renderEvent(event, tbody) {
 }
 
 function loadCalendarData() {
+  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pub?output=csv';
+
   fetch(csvUrl)
     .then(response => response.text())
     .then(csvText => {
@@ -467,16 +462,16 @@ function loadCalendarData() {
         if (first) {
           sel.appendChild(first);
         } else {
-          const option = document.createElement('option');
-          option.value = '';
-          option.textContent = label;
-          sel.appendChild(option);
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = label;
+          sel.appendChild(opt);
         }
         [...new Set(values.filter(Boolean))].sort().forEach(v => {
-          const option = document.createElement('option');
-          option.value = v;
-          option.textContent = v;
-          sel.appendChild(option);
+          const opt = document.createElement('option');
+          opt.value = v;
+          opt.textContent = v;
+          sel.appendChild(opt);
         });
       }
 
@@ -513,40 +508,35 @@ function loadCalendarData() {
     });
 }
 
-</script>
+$(document).ready(() => {
+  loadCalendarData();
 
-<script>
-  $(document).ready(() => {
-    loadCalendarData();
-
-    $('#togglePastEvents').on('click', () => {
-      $('#pastEventsSection').toggleClass('collapsed');
-      $('#togglePastEvents').text(
-        $('#pastEventsSection').hasClass('collapsed') ? 'Show Past Events' : 'Hide Past Events'
-      );
-    });
-
-    $('#seriesFilter').on('change', function () {
-      tableUpcoming.column(2).search(this.value).draw();
-      tablePast.column(2).search(this.value).draw();
-    });
-    $('#hostFilter').on('change', function () {
-      tableUpcoming.column(6).search(this.value).draw();
-      tablePast.column(6).search(this.value).draw();
-    });
-    $('#cityFilter').on('change', function () {
-      tableUpcoming.column(7).search(this.value).draw();
-      tablePast.column(7).search(this.value).draw();
-    });
-    $('#regionFilter').on('change', function () {
-      tableUpcoming.column(8).search(this.value).draw();
-      tablePast.column(8).search(this.value).draw();
-    });
-    $('#venueFilter').on('change', function () {
-      tableUpcoming.column(9).search(this.value).draw();
-      tablePast.column(9).search(this.value).draw();
-    });
+  $('#togglePastEvents').on('click', () => {
+    $('#pastEventsSection').toggleClass('collapsed');
+    $('#togglePastEvents').text(
+      $('#pastEventsSection').hasClass('collapsed') ? 'Show Past Events' : 'Hide Past Events'
+    );
   });
+
+  $('#seriesFilter').on('change', function () {
+    tableUpcoming.column(2).search(this.value).draw();
+    tablePast.column(2).search(this.value).draw();
+  });
+  $('#hostFilter').on('change', function () {
+    tableUpcoming.column(6).search(this.value).draw();
+    tablePast.column(6).search(this.value).draw();
+  });
+  $('#cityFilter').on('change', function () {
+    tableUpcoming.column(7).search(this.value).draw();
+    tablePast.column(7).search(this.value).draw();
+  });
+  $('#regionFilter').on('change', function () {
+    tableUpcoming.column(8).search(this.value).draw();
+    tablePast.column(8).search(this.value).draw();
+  });
+  $('#venueFilter').on('change', function () {
+    tableUpcoming.column(9).search(this.value).draw();
+    tablePast.column(9).search(this.value).draw();
+  });
+});
 </script>
-</body>
-</html>
