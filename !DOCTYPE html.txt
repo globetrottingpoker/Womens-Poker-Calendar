@@ -10,557 +10,610 @@
 <style>
 /* Your existing styles unchanged */
 body {
-  font-family: 'Inter', Arial, sans-serif;
-  background: #f9fafc;
-  color: #000;
-  margin: 0;
-  padding: 20px;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f9fafc;
+  color: #000;
+  margin: 0;
+  padding: 20px;
 }
 h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #000;
+  font-size: 22px;
+}
+#lastUpdated {
+  max-width: 1200px;
+  margin: 0 auto 12px auto;
+  font-weight: bold;
+  font-size: 16px;
   text-align: center;
-  margin-bottom: 24px;
-  color: #000;
-  font-size: 22px;
 }
 .filters { max-width:1200px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:8px; }
-.filters select { padding:6px; font-size:14px; border:1px solid #ccc; border-radius:4px; }
+.filters select { padding:6px; font-size: 14px; border:1px solid #ccc; border-radius: 4px; }
 .dt-container {
-  overflow-x: auto;
-  margin: 0 auto 40px;
+  overflow-x: auto;
+  margin: 0 auto 40px;
 }
 .toggle-past-btn {
-  display: block;
-  margin: 0 auto 20px;
-  padding: 10px 24px;
-  background: #2e7be6;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
+  display: block;
+  margin: 0 auto 20px;
+  padding: 10px 24px;
+  background: #2e7be6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
 }
 .toggle-past-btn:focus {
-  outline: none;
+  outline: none;
 }
 #pastEventsSection.collapsed {
-  display: none;
+  display: none;
 }
 table.display {
-  width: 100%;
-  min-width: 1250px;
-  border-collapse: collapse;
+  width: 100%;
+  min-width: 1250px;
+  border-collapse: collapse;
 }
 th, td {
-  font-size: 14px;
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #e0e0e0;
-  vertical-align: middle;
+  font-size: 14px;
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  vertical-align: middle;
 }
 .date-cell {
-  font-weight: 400;
-  font-size: 0.9em;
-  text-align: center;
-  min-width: 44px;
-  padding: 6px 8px;
+  font-weight: 400;
+  font-size: 0.9em;
+  text-align: center;
+  min-width: 44px;
+  padding: 6px 8px;
 }
 .date-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
 }
 .date-month {
-  font-size: 0.9em;
-  text-transform: uppercase;
-  color: #222;
-  letter-spacing: 0.5px;
-  font-weight: 400;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  color: #222;
+  letter-spacing: 0.5px;
+  font-weight: 400;
 }
 .date-day {
-  font-size: 1.2em;
-  color: #222;
-  font-weight: 400;
-  line-height: 1.1;
+  font-size: 1.2em;
+  color: #222;
+  font-weight: 400;
+  line-height: 1.1;
 }
 .flag-cell img {
-  max-width: 32px;
-  margin-right: 8px;
-  vertical-align: middle;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 32px;
+  margin-right: 8px;
+  vertical-align: middle;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 .series-cell {
-  white-space: normal;
-  min-width: 135px;
+  white-space: normal;
+  min-width: 135px;
 }
 .series-name a,
 .series-name span {
-  font-weight: 600;
-  text-decoration: none;
+  font-weight: 600;
+  text-decoration: none;
 }
 .series-name a:hover {
-  text-decoration: underline;
+  text-decoration: underline;
 }
 .series-location {
-  font-size: 1em;
-  color: #000;
-  font-weight: 400;
-  margin-top: 2px;
+  font-size: 1em;
+  color: #000;
+  font-weight: 400;
+  margin-top: 2px;
 }
 .series-dates {
-  font-size: 0.98em;
-  color: #333;
-  margin-top: 2px;
-  font-weight: 400;
+  font-size: 0.98em;
+  color: #333;
+  margin-top: 2px;
+  font-weight: 400;
 }
 .type-cell {
-  text-align: center;
-  font-size: 1.2em;
-  min-width: 34px;
+  text-align: center;
+  font-size: 1.2em;
+  min-width: 34px;
 }
 .venue-cell a {
-  color: #0066cc;
-  text-decoration: none;
+  color: #0066cc;
+  text-decoration: none;
 }
 .venue-cell a:hover {
-  text-decoration: underline;
+  text-decoration: underline;
 }
 .host-cell a {
-  color: #228b22;
-  text-decoration: none;
-  font-weight: 500;
+  color: #228b22;
+  text-decoration: none;
+  font-weight: 500;
 }
 .host-cell a:hover {
-  text-decoration: underline;
+  text-decoration: underline;
 }
 @media (max-width: 600px) {
-  table.display,
-  .dt-container {
-    font-size: 0.9em;
-  }
-  th, td {
-    padding: 6px 4px;
-  }
-  .state-cell,
-  .moreinfo-cell {
-    display: none;
-  }
-  .date-cell {
-    min-width: 36px;
-  }
+  table.display,
+  .dt-container {
+    font-size: 0.9em;
+  }
+  th, td {
+    padding: 6px 4px;
+  }
+  .state-cell,
+  .moreinfo-cell {
+    display: none;
+  }
+  .date-cell {
+    min-width: 36px;
+  }
 }
 </style>
 </head>
 <body>
 <h2>Upcoming Events</h2>
 
-<!-- Filter dropdowns with full descriptive default options -->
+<!-- Last Updated display -->
+<div id="lastUpdated">Loading last updated date...</div>
+
 <div class="filters">
-  <select id="seriesFilter"><option value="">All Series</option></select>
-  <select id="hostFilter"><option value="">All Hosts</option></select>
-  <select id="cityFilter"><option value="">All Cities</option></select>
-  <select id="regionFilter"><option value="">All Regions</option></select>
-  <select id="venueFilter"><option value="">All Venues</option></select>
+  <select id="seriesFilter"><option value="">All Series</option></select>
+  <select id="hostFilter"><option value="">All Hosts</option></select>
+  <select id="cityFilter"><option value="">All Cities</option></select>
+  <select id="regionFilter"><option value="">All Regions</option></select>
+  <select id="venueFilter"><option value="">All Venues</option></select>
 </div>
 
 <div id="calendarError" style="display:none; color:#b00; background:#fff0f0; padding:18px; border-radius:8px; margin:30px auto; max-width:600px; text-align:center; font-size:1.2em;">
-  Sorry, we couldn't load the calendar. Please check your API connection and try again.
+  Sorry, we couldn't load the calendar. Please check your API connection and try again.
 </div>
 <div class="dt-container">
-  <table id="calendarTable" class="display" cellspacing="0" cellpadding="0">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th></th>
-        <th>Series</th>
-        <th>Event</th>
-        <th>BuyIn / GTD</th>
-        <th>Type</th>
-        <th>Host</th>
-        <th>City</th>
-        <th>Region(US State or Country)</th>
-        <th>Venue</th>
-        <th>More Info</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <table id="calendarTable" class="display" cellspacing="0" cellpadding="0">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th></th>
+        <th>Series</th>
+        <th>Event</th>
+        <th>BuyIn / GTD</th>
+        <th>Type</th>
+        <th>Host</th>
+        <th>City</th>
+        <th>Region(US State or Country)</th>
+        <th>Venue</th>
+        <th>More Info</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 <button class="toggle-past-btn" id="togglePastEvents">Show Past Events</button>
 <div id="pastEventsSection" class="collapsed">
-  <h2>Past Events</h2>
-  <div id="pastCalendarError" style="display:none; color:#b00; background:#fff0f0; padding:18px; border-radius:8px; margin:30px auto; max-width:600px; text-align:center; font-size:1.2em;">
-    Sorry, we couldn't load the calendar. Please check your API connection and try again.
-  </div>
-  <div class="dt-container">
-    <table id="pastCalendarTable" class="display" cellspacing="0" cellpadding="0">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th></th>
-          <th>Series</th>
-          <th>Event</th>
-          <th>BuyIn / GTD</th>
-          <th>Type</th>
-          <th>Host</th>
-          <th>City</th>
-          <th>Region(US State or Country)</th>
-          <th>Venue</th>
-          <th>More Info</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <h2>Past Events</h2>
+  <div id="pastCalendarError" style="display:none; color:#b00; background:#fff0f0; padding:18px; border-radius:8px; margin:30px auto; max-width:600px; text-align:center; font-size:1.2em;">
+    Sorry, we couldn't load the calendar. Please check your API connection and try again.
+  </div>
+  <div class="dt-container">
+    <table id="pastCalendarTable" class="display" cellspacing="0" cellpadding="0">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th></th>
+          <th>Series</th>
+          <th>Event</th>
+          <th>BuyIn / GTD</th>
+          <th>Type</th>
+          <th>Host</th>
+          <th>City</th>
+          <th>Region(US State or Country)</th>
+          <th>Venue</th>
+          <th>More Info</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 <script>
+let tableUpcoming, tablePast;
+
 function escapeHtml(s) {
-  if (s == null) return '';
-  return String(s).replace(/[&<>"']/g, function (m) {
-    return {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-    }[m];
-  });
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, function (m) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[m];
+  });
 }
 
 function getFlagCode(region, state, city) {
-  let code = (region || state || city || '').toLowerCase().trim();
-  if (code === 'oklahoma' || code === 'choctaw' || code === 'chochaw') return 'us';
-  if (code === 'calgary') return 'ca';
-  if (code === "st. julian's") return 'mt';
-  if (code === 'tallinn') return 'ee';
-  if (code === 'incheon' || code === 'jeju') return 'kr';
-  if (code === 'taipei') return 'tw';
-  if (code === 'cape town') return 'za';
-  if (code.length === 2) return code;
-  return 'xx';
+  let code = (region || state || city || '').toLowerCase().trim();
+  if (code === 'oklahoma' || code === 'choctaw' || code === 'chochaw') return 'us';
+  if (code === 'calgary') return 'ca';
+  if (code === "st. julian's") return 'mt';
+  if (code === 'tallinn') return 'ee';
+  if (code === 'incheon' || code === 'jeju') return 'kr';
+  if (code === 'taipei') return 'tw';
+  if (code === 'cape town') return 'za';
+  if (code.length === 2) return code;
+  return 'xx';
+}
+
+function isOnlineEvent(event) {
+  // Check if event.type, event.series, or event.event contain keywords
+  const keywords = ['www', 'virtual', 'online', 'wpa'];
+  const combinedText = ((event.type || '') + ' ' + (event.series || '') + ' ' + (event.event || '')).toLowerCase();
+  return keywords.some(keyword => combinedText.includes(keyword));
 }
 
 function parseDate(dateStr) {
-  if (!dateStr) return null;
-  if (dateStr === 'TBA' || dateStr.toLowerCase() === 'ongoing') return null;
-  let date;
-  if (dateStr.includes('/')) {
-    const [m, d, y] = dateStr.split('/');
-    date = new Date(y, m - 1, d);
-  } else if (dateStr.includes('-')) {
-    date = new Date(dateStr);
-  } else {
-    return null;
-  }
-  if (isNaN(date.getTime())) return null;
-  return date;
+  if (!dateStr) return null;
+  if (dateStr === 'TBA' || dateStr.toLowerCase() === 'ongoing') return null;
+  let date;
+  if (dateStr.includes('/')) {
+    const [m, d, y] = dateStr.split('/');
+    date = new Date(y, m - 1, d);
+  } else if (dateStr.includes('-')) {
+    date = new Date(dateStr);
+  } else {
+    return null;
+  }
+  if (isNaN(date.getTime())) return null;
+  return date;
 }
 
 function parseSeriesDate(seriesDates) {
-  if (!seriesDates) return null;
-  let match = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})?/);
-  if (match) {
-    let month = match[1];
-    let day = match;
-    let year = match;
-    if (!year) {
-      let yearMatch = seriesDates.match(/(\d{4})/g);
-      year = yearMatch ? yearMatch[yearMatch.length - 1] : new Date().getFullYear();
-    }
-    let dateStr = `${month} ${day}, ${year}`;
-    const d = new Date(dateStr);
-    if (!isNaN(d)) return d;
-  }
-  return null;
+  if (!seriesDates) return null;
+  let match = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})?/);
+  if (match) {
+    let month = match[1];
+    let day = match;
+    let year = match;
+    if (!year) {
+      let yearMatch = seriesDates.match(/(\d{4})/g);
+      year = yearMatch ? yearMatch[yearMatch.length - 1] : new Date().getFullYear();
+    }
+    let dateStr = `${month} ${day}, ${year}`;
+    const d = new Date(dateStr);
+    if (!isNaN(d)) return d;
+  }
+  return null;
 }
 
 function getSortableDate(event) {
-  if (event.eventDate && typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') {
-    return -9999999999999; // Top priority
-  }
-  if (event.eventDate && event.eventDate !== 'TBA') {
-    const d = parseDate(event.eventDate);
-    if (d && !isNaN(d)) return d.getTime();
-  }
-  const seriesDate = parseSeriesDate(event.seriesDates);
-  if (seriesDate) return seriesDate.getTime();
-  return 9999999999999;
+  if (event.eventDate && typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') {
+    return -9999999999999; // Top priority
+  }
+  if (event.eventDate && event.eventDate !== 'TBA') {
+    const d = parseDate(event.eventDate);
+    if (d && !isNaN(d)) return d.getTime();
+  }
+  const seriesDate = parseSeriesDate(event.seriesDates);
+  if (seriesDate) return seriesDate.getTime();
+  return 9999999999999;
 }
 
 function sortEvents(events, isUpcoming) {
-  return events.slice().sort((a, b) => {
-    const dateA = getSortableDate(a);
-    const dateB = getSortableDate(b);
-    return isUpcoming ? dateA - dateB : dateB - dateA;
-  });
+  return events.slice().sort((a, b) => {
+    const dateA = getSortableDate(a);
+    const dateB = getSortableDate(b);
+    return isUpcoming ? dateA - dateB : dateB - dateA;
+  });
 }
 
 function formatDateCell(dateStr) {
-  if (typeof dateStr === 'string' && dateStr.toLowerCase() === 'ongoing') {
-    return `<span style="color:#000; font-weight:bold;">ONGOING</span>`;
-  }
-  const date = parseDate(dateStr);
-  if (!date || isNaN(date)) return escapeHtml(dateStr || '');
-  const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
-  const day = date.getDate();
-  return `<div class="date-stack"><span class="date-month">${month}</span><span class="date-day">${day}</span></div>`;
+  if (typeof dateStr === 'string' && dateStr.toLowerCase() === 'ongoing') {
+    return `<span style="color:#000; font-weight:bold;">ONGOING</span>`;
+  }
+  const date = parseDate(dateStr);
+  if (!date || isNaN(date)) return escapeHtml(dateStr || '');
+  const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
+  const day = date.getDate();
+  return `<div class="date-stack"><span class="date-month">${month}</span><span class="date-day">${day}</span></div>`;
 }
 
 function normaliseRegion(regionValue) {
-  if (!regionValue) return '';
-  const map = {
-    us: 'United States', nv: 'Nevada', ok: 'Oklahoma', ny: 'New York',
-    fl: 'Florida', tx: 'Texas', gb: 'United Kingdom', ca: 'Canada',
-    mt: 'Malta', cy: 'Cyprus'
-  };
-  const key = regionValue.toLowerCase().trim();
-  return map[key] || regionValue;
+  if (!regionValue) return '';
+  const map = {
+    us: 'United States', nv: 'Nevada', ok: 'Oklahoma', ny: 'New York',
+    fl: 'Florida', tx: 'Texas', gb: 'United Kingdom', ca: 'Canada',
+    mt: 'Malta', cy: 'Cyprus'
+  };
+  const key = regionValue.toLowerCase().trim();
+  return map[key] || regionValue;
 }
 
 function renderEvent(event, tbody) {
-  const typeMap = {
-    't': '🏆',
-    'tournament': '🏆',
-    'cash': '💵',
-    'mu': '🤝',
-    'www': '🌐'
-  };
-  const typeValue = (event.type || '').toString().trim().toLowerCase();
-  const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
+  const typeMap = {
+    't': '',
+    'tournament': '',
+    'cash': '',
+    'mu': '',
+    'www': ''
+  };
+  const typeValue = (event.type || '').toString().trim().toLowerCase();
+  const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
 
-  // Flag logic: blank if 'ONGOING' or hideFlag is 'x'
-  let flagHtml = '';
-  if (
-    !(typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') &&
-    (!event.hideFlag || event.hideFlag.toLowerCase() !== 'x')
-  ) {
-    const flagCode = getFlagCode(event.region, event.state, event.city);
-    const flagUrl = `https://flagcdn.com/w80/${flagCode}.png`;
-    flagHtml = `<img src="${flagUrl}" alt="${flagCode}">`;
-  }
+  let flagHtml = '';
+  if (
+    !(typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') &&
+    (!event.hideFlag || event.hideFlag.toLowerCase() !== 'x')
+  ) {
+    if (isOnlineEvent(event)) {
+      // Display globe icon for online/virtual events
+      flagHtml = '<img src="icons/globe.png" alt="Online event" style="max-width:32px; display:block; margin-left:auto; margin-right:auto;" />';
+    } else {
+      const flagCode = getFlagCode(event.region, event.state, event.city);
+      const flagUrl = `https://flagcdn.com/w80/${flagCode}.png`;
+      flagHtml = `<img src="${flagUrl}" alt="${flagCode} flag">`;
+    }
+  }
 
-  const dateCell = formatDateCell(event.eventDate);
-  const venueLink = event.venueLink || '';
-  const venueName = event.venue || '';
-  const venueHtml =
-    venueLink && venueName
-      ? `<a href="${venueLink}" target="_blank">${escapeHtml(venueName)}</a>`
-      : escapeHtml(venueName);
-  const buyinGtd = escapeHtml(event.buyIn || event['BuyIn / GTD'] || '');
-  const host = escapeHtml(event.host || '');
-  const hostLink = event.hostLink || '';
-  const hostHtml = hostLink && host ? `<a href="${hostLink}" target="_blank">${host}</a>` : host;
-  const seriesColor = event.seriesColor || '#000';
-  const seriesName = escapeHtml(event.series || '');
-  const seriesDetails = event.seriesDetails || '';
-  const seriesNameHtml = seriesDetails
-    ? `<a href="${seriesDetails}" target="_blank" style="color:${seriesColor}; font-weight:600; text-decoration:none;">${seriesName}</a>`
-    : `<span style="color:${seriesColor}; font-weight:600;">${seriesName}</span>`;
-  const seriesLocation = escapeHtml(event.seriesLocation || '');
-  const seriesDates = escapeHtml(event.seriesDates || '');
-  const seriesHtml = `
-    <div class="series-name">${seriesNameHtml}</div>
-    <div class="series-location">${seriesLocation}</div>
-    <div class="series-dates">${seriesDates}</div>
-  `;
-  const city = escapeHtml(event.city || '');
-  const regionDisplay = event.regionDisplay ? escapeHtml(event.regionDisplay) : escapeHtml(event.state || event.region || '');
-  const moreInfoText = escapeHtml(event.moreInfo || event.moreInformation || '');
+  const dateCell = formatDateCell(event.eventDate);
+  const venueLink = event.venueLink || '';
+  const venueName = event.venue || '';
+  const venueHtml =
+    venueLink && venueName
+      ? `<a href="${venueLink}" target="_blank">${escapeHtml(venueName)}</a>`
+      : escapeHtml(venueName);
+  const buyinGtd = escapeHtml(event.buyIn || event['BuyIn / GTD'] || '');
+  const host = escapeHtml(event.host || '');
+  const hostLink = event.hostLink || '';
+  const hostHtml = hostLink && host ? `<a href="${hostLink}" target="_blank">${host}</a>` : host;
+  const seriesColor = event.seriesColor || '#000';
+  const seriesName = escapeHtml(event.series || '');
+  const seriesDetails = event.seriesDetails || '';
+  const seriesNameHtml = seriesDetails
+    ? `<a href="${seriesDetails}" target="_blank" style="color:${seriesColor}; font-weight:600; text-decoration:none;">${seriesName}</a>`
+    : `<span style="color:${seriesColor}; font-weight:600;">${seriesName}</span>`;
+  const seriesLocation = escapeHtml(event.seriesLocation || '');
+  const seriesDates = escapeHtml(event.seriesDates || '');
+  const seriesHtml = `
+    <div class="series-name">${seriesNameHtml}</div>
+    <div class="series-location">${seriesLocation}</div>
+    <div class="series-dates">${seriesDates}</div>
+  `;
+  const city = escapeHtml(event.city || '');
+  const regionDisplay = event.regionDisplay ? escapeHtml(event.regionDisplay) : escapeHtml(event.state || event.region || '');
+  const moreInfoText = escapeHtml(event.moreInfo || event.moreInformation || '');
 
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td class="date-cell">${dateCell}</td>
-    <td class="flag-cell">${flagHtml}</td>
-    <td class="series-cell">${seriesHtml}</td>
-    <td class="event-cell">${escapeHtml(event.event || '')}</td>
-    <td class="buyin-cell">${buyinGtd}</td>
-    <td class="type-cell">${typeEmoji}</td>
-    <td class="host-cell">${hostHtml}</td>
-    <td class="city-cell">${city}</td>
-    <td class="state-cell">${regionDisplay}</td>
-    <td class="venue-cell">${venueHtml}</td>
-    <td class="moreinfo-cell">${moreInfoText}</td>
-  `;
-  tbody.appendChild(tr);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="date-cell">${dateCell}</td>
+    <td class="flag-cell">${flagHtml}</td>
+    <td class="series-cell">${seriesHtml}</td>
+    <td class="event-cell">${escapeHtml(event.event || '')}</td>
+    <td class="buyin-cell">${buyinGtd}</td>
+    <td class="type-cell">${typeEmoji}</td>
+    <td class="host-cell">${hostHtml}</td>
+    <td class="city-cell">${city}</td>
+    <td class="state-cell">${regionDisplay}</td>
+    <td class="venue-cell">${venueHtml}</td>
+    <td class="moreinfo-cell">${moreInfoText}</td>
+  `;
+  tbody.appendChild(tr);
 }
 
 function isUpcomingEvent(event) {
-  if (typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') return true;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  let eventDate = parseDate(event.eventDate);
-  if (event.eventDate === 'TBA' || !eventDate) eventDate = parseSeriesDate(event.seriesDates);
-  if (!eventDate) return true;
-  eventDate.setHours(0, 0, 0, 0);
-  return eventDate >= today;
+  if (typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') return true;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let eventDate = parseDate(event.eventDate);
+  if (event.eventDate === 'TBA' || !eventDate) eventDate = parseSeriesDate(event.seriesDates);
+  if (!eventDate) return true;
+  eventDate.setHours(0, 0, 0, 0);
+  return eventDate >= today;
 }
 
 function isPastEvent(event) {
-  if (typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') return false;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  let eventDate = parseDate(event.eventDate);
-  if (event.eventDate === 'TBA' || !eventDate) eventDate = parseSeriesDate(event.seriesDates);
-  if (!eventDate) return false;
-  eventDate.setHours(0, 0, 0, 0);
-  return eventDate < today;
+  if (typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') return false;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let eventDate = parseDate(event.eventDate);
+  if (event.eventDate === 'TBA' || !eventDate) eventDate = parseSeriesDate(event.seriesDates);
+  if (!eventDate) return false;
+  eventDate.setHours(0, 0, 0, 0);
+  return eventDate < today;
 }
 
 function parseCSV(csvText) {
-  const lines = csvText.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/(^"|"$)/g, ''));
-  const data = [];
+  const lines = csvText.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/(^"|"$)/g, ''));
+  const data = [];
 
-  for (let i = 1; i < lines.length; i++) {
-    const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // split on commas not in quotes
-    const obj = {};
-    headers.forEach((header, idx) => {
-      obj[header] = row[idx] ? row[idx].replace(/(^"|"$)/g, '').trim() : '';
+  for (let i = 1; i < lines.length; i++) {
+    const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // split on commas not in quotes
+    const obj = {};
+    headers.forEach((header, idx) => {
+      obj[header] = row[idx] ? row[idx].replace(/(^"|"$)/g, '').trim() : '';
+    });
+    data.push(obj);
+  }
+  return data;
+}
+
+function fetchLastUpdatedDate() {
+  const sheetId = 'YOUR_SHEET_ID';
+  const apiKey = 'YOUR_API_KEY';
+  const lastUpdatedRange = 'Sheet1!Z1';
+
+  fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${lastUpdatedRange}?key=${apiKey}`)
+    .then(response => response.json())
+    .then(data => {
+      const lastUpdated = data.values && data.values[0] ? data.values[0][0] : 'Last Updated date not found';
+      document.getElementById('lastUpdated').textContent = lastUpdated;
+    })
+    .catch(() => {
+      document.getElementById('lastUpdated').textContent = 'Failed to load Last Updated date';
     });
-    data.push(obj);
-  }
-  return data;
 }
 
 function loadCalendarData() {
-  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pub?output=csv';
+  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pub?output=csv';
 
-  fetch(csvUrl)
-    .then(response => {
-      if (!response.ok) throw new Error('Network response was not OK');
-      return response.text();
-    })
-    .then(csvText => {
-      const data = parseCSV(csvText);
+  fetch(csvUrl)
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not OK');
+      return response.text();
+    })
+    .then(csvText => {
+      const data = parseCSV(csvText);
 
-      const upcomingEvents = [];
-      const pastEvents = [];
-      const upcomingTbody = document.querySelector('#calendarTable tbody');
-      const pastTbody = document.querySelector('#pastCalendarTable tbody');
-      upcomingTbody.innerHTML = '';
-      pastTbody.innerHTML = '';
+      const upcomingEvents = [];
+      const pastEvents = [];
+      const upcomingTbody = document.querySelector('#calendarTable tbody');
+      const pastTbody = document.querySelector('#pastCalendarTable tbody');
+      upcomingTbody.innerHTML = '';
+      pastTbody.innerHTML = '';
 
-      data.forEach(event => {
-        if (!event.Series || !event['Event Date']) return;
+      data.forEach(event => {
+        if (!event.Series || !event['Event Date']) return;
 
-        // Flexible mapping accepting common header variations
-        function getKey(obj, keys) {
-          for (const key of keys) {
-            if (obj.hasOwnProperty(key)) return obj[key];
-          }
-          return '';
-        }
+        function getKey(obj, keys) {
+          for (const key of keys) {
+            if (obj.hasOwnProperty(key)) return obj[key];
+          }
+          return '';
+        }
 
-        event.series      = getKey(event, ['Series', 'series']);
-        event.eventDate   = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']);
-        event.seriesDates = getKey(event, ['Series Dates', 'series dates', 'SeriesDates', 'seriesDates']);
-        event.host        = getKey(event, ['Host', 'host']);
-        event.city        = getKey(event, ['City', 'city']);
-        event.region      = getKey(event, ['Region', 'region']);
-        event.state       = getKey(event, ['State', 'state']);
-        event.venue       = getKey(event, ['Venue', 'venue']);
-        event.venueLink   = getKey(event, ['Venue Link', 'venue link']);
-        event.hostLink    = getKey(event, ['Host Link', 'host link']);
-        event.seriesDetails = getKey(event, ['Series Details', 'series details']);
-        event.buyIn       = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']);
-        event.type        = getKey(event, ['Type', 'type']);
-        event.moreInfo    = getKey(event, ['More Info', 'more info']);
-        event.event       = getKey(event, ['Event', 'event']);
+        event.series      = getKey(event, ['Series', 'series']);
+        event.eventDate   = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']);
+        event.seriesDates = getKey(event, ['Series Dates', 'series dates', 'SeriesDates', 'seriesDates']);
+        event.host        = getKey(event, ['Host', 'host']);
+        event.city        = getKey(event, ['City', 'city']);
+        event.region      = getKey(event, ['Region', 'region']);
+        event.state       = getKey(event, ['State', 'state']);
+        event.venue       = getKey(event, ['Venue', 'venue']);
+        event.venueLink   = getKey(event, ['Venue Link', 'venue link']);
+        event.hostLink    = getKey(event, ['Host Link', 'host link']);
+        event.seriesDetails = getKey(event, ['Series Details', 'series details']);
+        event.buyIn       = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']);
+        event.type        = getKey(event, ['Type', 'type']);
+        event.moreInfo    = getKey(event, ['More Info', 'more info']);
+        event.event       = getKey(event, ['Event', 'event']);
 
-        event.regionDisplay = normaliseRegion(event.state || event.region);
+        event.regionDisplay = normaliseRegion(event.state || event.region);
 
-        if ((event.series && event.eventDate) || (event.series && event.event)) {
-          if (isUpcomingEvent(event)) {
-            upcomingEvents.push(event);
-          } else if (isPastEvent(event)) {
-            pastEvents.push(event);
-          }
-        }
-      });
+        if ((event.series && event.eventDate) || (event.series && event.event)) {
+          if (isUpcomingEvent(event)) {
+            upcomingEvents.push(event);
+          } else if (isPastEvent(event)) {
+            pastEvents.push(event);
+          }
+        }
+      });
 
-      sortEvents(upcomingEvents, true).forEach(event => renderEvent(event, upcomingTbody));
-      sortEvents(pastEvents, false).forEach(event => renderEvent(event, pastTbody));
+      sortEvents(upcomingEvents, true).forEach(event => renderEvent(event, upcomingTbody));
+      sortEvents(pastEvents, false).forEach(event => renderEvent(event, pastTbody));
 
-      let tableUpcoming = $('#calendarTable').DataTable({
-        responsive: true,
-        scrollX: true,
-        paging: true,
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50, 100],
-        info: false,
-        order: [],
-        destroy: true
-      });
-      let tablePast = $('#pastCalendarTable').DataTable({
-        responsive: true,
-        scrollX: true,
-        paging: true,
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50, 100],
-        info: false,
-        order: [],
-        destroy: true
-      });
+      // Destroy existing tables if already initialized
+      if ($.fn.DataTable.isDataTable('#calendarTable')) {
+        tableUpcoming.destroy();
+      }
+      if ($.fn.DataTable.isDataTable('#pastCalendarTable')) {
+        tablePast.destroy();
+      }
 
-      function populateFilterOptions(selectId, values) {
-        const sel = document.getElementById(selectId);
-        if (!sel) return;
-        sel.innerHTML = '<option value="">All Series</option>';
-        [...new Set(values.filter(Boolean))].sort().forEach(v => {
-          const opt = document.createElement('option');
-          opt.value = v;
-          opt.textContent = 'All ' + v;
-          sel.appendChild(opt);
-        });
-      }
-      
-      try {
-        populateFilterOptions('seriesFilter', data.map(e => e.Series || e.series));
-        populateFilterOptions('hostFilter', data.map(e => e.Host || e.host));
-        populateFilterOptions('cityFilter', data.map(e => e.City || e.city));
-        populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.state || e.Region || e.region)));
-        populateFilterOptions('venueFilter', data.map(e => e.Venue || e.venue));
-      } catch (err) {
-        console.error('Filter population error:', err);
-      }
+      tableUpcoming = $('#calendarTable').DataTable({
+        responsive: true,
+        scrollX: true,
+        paging: true,
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        info: false,
+        order: [],
+        destroy: true
+      });
 
-      const cols = { Series: 2, Host: 6, City: 7, Region: 8, Venue: 9 };
-      $('#seriesFilter').on('change', function () {
-        tableUpcoming.column(cols.Series).search(this.value).draw();
-        tablePast.column(cols.Series).search(this.value).draw();
-      });
-      $('#hostFilter').on('change', function () {
-        tableUpcoming.column(cols.Host).search(this.value).draw();
-        tablePast.column(cols.Host).search(this.value).draw();
-      });
-      $('#cityFilter').on('change', function () {
-        tableUpcoming.column(cols.City).search(this.value).draw();
-        tablePast.column(cols.City).search(this.value).draw();
-      });
-      $('#regionFilter').on('change', function () {
-        tableUpcoming.column(cols.Region).search(this.value).draw();
-        tablePast.column(cols.Region).search(this.value).draw();
-      });
-      $('#venueFilter').on('change', function () {
-        tableUpcoming.column(cols.Venue).search(this.value).draw();
-        tablePast.column(cols.Venue).search(this.value).draw();
-      });
-    })
-    .catch(err => {
-      console.error('Error loading calendar data:', err);
-      document.getElementById('calendarError').style.display = 'block';
-      document.getElementById('pastCalendarError').style.display = 'block';
-    });
+      tablePast = $('#pastCalendarTable').DataTable({
+        responsive: true,
+        scrollX: true,
+        paging: true,
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        info: false,
+        order: [],
+        destroy: true
+      });
+
+      function populateFilterOptions(selectId, values, allLabel) {
+        const sel = document.getElementById(selectId);
+        if (!sel) return;
+        const firstOpt = sel.querySelector('option[value=""]');
+        sel.innerHTML = '';
+        if (firstOpt) {
+          sel.appendChild(firstOpt);
+        } else {
+          const allOpt = document.createElement('option');
+          allOpt.value = '';
+          allOpt.textContent = allLabel;
+          sel.appendChild(allOpt);
+        }
+        [...new Set(values.filter(Boolean))].sort().forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v;
+          opt.textContent = v;
+          sel.appendChild(opt);
+        });
+      }
+
+      populateFilterOptions('seriesFilter', data.map(e => e.Series || e.series), 'All Series');
+      populateFilterOptions('hostFilter', data.map(e => e.Host || e.host), 'All Hosts');
+      populateFilterOptions('cityFilter', data.map(e => e.City || e.city), 'All Cities');
+      populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.state || e.Region || e.region)), 'All Regions');
+      populateFilterOptions('venueFilter', data.map(e => e.Venue || e.venue), 'All Venues');
+
+      const cols = { Series: 2, Host: 6, City: 7, Region: 8, Venue: 9 };
+
+      $('#seriesFilter').off('change').on('change', function () {
+        tableUpcoming.column(cols.Series).search(this.value).draw();
+        tablePast.column(cols.Series).search(this.value).draw();
+      });
+      $('#hostFilter').off('change').on('change', function () {
+        tableUpcoming.column(cols.Host).search(this.value).draw();
+        tablePast.column(cols.Host).search(this.value).draw();
+      });
+      $('#cityFilter').off('change').on('change', function () {
+        tableUpcoming.column(cols.City).search(this.value).draw();
+        tablePast.column(cols.City).search(this.value).draw();
+      });
+      $('#regionFilter').off('change').on('change', function () {
+        tableUpcoming.column(cols.Region).search(this.value).draw();
+        tablePast.column(cols.Region).search(this.value).draw();
+      });
+      $('#venueFilter').off('change').on('change', function () {
+        tableUpcoming.column(cols.Venue).search(this.value).draw();
+        tablePast.column(cols.Venue).search(this.value).draw();
+      });
+    })
+    .catch(err => {
+      console.error('Error loading calendar data:', err);
+      document.getElementById('calendarError').style.display = 'block';
+      document.getElementById('pastCalendarError').style.display = 'block';
+    });
 }
 
 $(document).ready(() => {
-  loadCalendarData();
-  $('#togglePastEvents').on('click', function () {
-    $('#pastEventsSection').toggleClass('collapsed');
-    $(this).text(
-      $('#pastEventsSection').hasClass('collapsed') ? 'Show Past Events' : 'Hide Past Events'
-    );
-  });
+  fetchLastUpdatedDate();
+  loadCalendarData();
+  $('#togglePastEvents').on('click', function () {
+    $('#pastEventsSection').toggleClass('collapsed');
+    $(this).text(
+      $('#pastEventsSection').hasClass('collapsed') ? 'Show Past Events' : 'Hide Past Events'
+    );
+  });
 });
 </script>
 </body>
