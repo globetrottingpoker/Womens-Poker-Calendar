@@ -21,13 +21,6 @@
     color: #000;
     font-size: 22px;
   }
-  #lastUpdatedContainer {
-    max-width: 1200px;
-    margin: 0 auto 12px auto;
-    font-weight: bold;
-    font-size: 16px;
-    text-align: left;
-  }
   .filters { max-width:1200px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:8px; }
   .filters select { padding:6px; font-size: 14px; border:1px solid #ccc; border-radius: 4px; }
   .dt-container {
@@ -162,11 +155,6 @@
 <body>
 <h2>Upcoming Events</h2>
 
-<!-- Last Updated -->
-<div id="lastUpdatedContainer">
-  Last Updated: <span id="lastUpdatedDate">Loading...</span>
-</div>
-
 <div class="filters">
   <select id="seriesFilter"><option value="">All Series</option></select>
   <select id="hostFilter"><option value="">All Hosts</option></select>
@@ -275,12 +263,8 @@ function parseSeriesDate(seriesDates) {
   let match = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})?/);
   if (match) {
     let month = match[1];
-    let day = match;
-    let year = match;
-    if (!year) {
-      let yearMatch = seriesDates.match(/(\d{4})/g);
-      year = yearMatch ? yearMatch[yearMatch.length - 1] : new Date().getFullYear();
-    }
+    let day = match[2];
+    let year = match[3] || new Date().getFullYear();
     let dateStr = `${month} ${day}, ${year}`;
     const d = new Date(dateStr);
     if (!isNaN(d)) return d;
@@ -290,7 +274,7 @@ function parseSeriesDate(seriesDates) {
 
 function getSortableDate(event) {
   if (event.eventDate && typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') {
-    return -9999999999999; // Top priority
+    return -9999999999999; // highest priority
   }
   if (event.eventDate && event.eventDate !== 'TBA') {
     const d = parseDate(event.eventDate);
@@ -301,22 +285,22 @@ function getSortableDate(event) {
   return 9999999999999;
 }
 
-function sortEvents(events, isUpcoming) {
+function sortEvents(events, ascending = true) {
   return events.slice().sort((a, b) => {
-    const dateA = getSortableDate(a);
-    const dateB = getSortableDate(b);
-    return isUpcoming ? dateA - dateB : dateB - dateA;
+    const aT = getSortableDate(a);
+    const bT = getSortableDate(b);
+    return ascending ? aT - bT : bT - aT;
   });
 }
 
 function formatDateCell(dateStr) {
   if (typeof dateStr === 'string' && dateStr.toLowerCase() === 'ongoing') {
-    return `<span style="color:#000; font-weight:bold;">ONGOING</span>`;
+    return `<b style="color:#000">ONGOING</b>`;
   }
-  const date = parseDate(dateStr);
-  if (!date || isNaN(date)) return escapeHtml(dateStr || '');
-  const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
-  const day = date.getDate();
+  const dt = parseDate(dateStr);
+  if (!dt) return escapeHtml(dateStr || '');
+  const month = dt.toLocaleString('default', { month: 'short' }).toUpperCase();
+  const day = dt.getDate();
   return `<div class="date-stack"><span class="date-month">${month}</span><span class="date-day">${day}</span></div>`;
 }
 
@@ -333,27 +317,21 @@ function normaliseRegion(regionValue) {
 
 function renderEvent(event, tbody) {
   const typeMap = {
-    't': '🏆',
-    'tournament': '🏆',
-    'cash': '💵',
-    'mu': '🤝',
-    'www': '🌐'
+    t: '🏆',
+    tournament: '🏆',
+    cash: '💵',
+    mu: '🤝',
+    www: '🌐'
   };
   const typeValue = (event.type || '').toString().trim().toLowerCase();
   const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
 
+  // If type is 'www' then flag column must be empty
   let flagHtml = '';
-  if (
-    !(typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') &&
-    (!event.hideFlag || event.hideFlag.toLowerCase() !== 'x')
-  ) {
-    if ((event.region || '').toLowerCase() === 'x') {
-      // Show globe icon instead of flag when region is X
-      flagHtml = '<img src="icons/globe.png" alt="Online event" style="max-width:32px; display:block; margin-left:auto; margin-right:auto;" />';
-    } else {
+  if (typeValue !== 'www') {
+    if ((event.region || '').toLowerCase() !== 'x') {
       const flagCode = getFlagCode(event.region, event.state, event.city);
-      const flagUrl = `https://flagcdn.com/w80/${flagCode}.png`;
-      flagHtml = `<img src="${flagUrl}" alt="${flagCode} flag">`;
+      flagHtml = `<img src="https://flagcdn.com/w80/${flagCode}.png" alt="${flagCode} flag"/>`;
     }
   }
 
@@ -361,9 +339,7 @@ function renderEvent(event, tbody) {
   const venueLink = event.venueLink || '';
   const venueName = event.venue || '';
   const venueHtml =
-    venueLink && venueName
-      ? `<a href="${venueLink}" target="_blank">${escapeHtml(venueName)}</a>`
-      : escapeHtml(venueName);
+    venueLink && venueName ? `<a href="${venueLink}" target="_blank">${escapeHtml(venueName)}</a>` : escapeHtml(venueName);
   const buyinGtd = escapeHtml(event.buyIn || event['BuyIn / GTD'] || '');
   const host = escapeHtml(event.host || '');
   const hostLink = event.hostLink || '';
@@ -402,90 +378,14 @@ function renderEvent(event, tbody) {
   tbody.appendChild(tr);
 }
 
-function isUpcomingEvent(event) {
-  if (typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') return true;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  let eventDate = parseDate(event.eventDate);
-  if (event.eventDate === 'TBA' || !eventDate) eventDate = parseSeriesDate(event.seriesDates);
-  if (!eventDate) return true;
-  eventDate.setHours(0, 0, 0, 0);
-  return eventDate >= today;
-}
-
-function isPastEvent(event) {
-  if (typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') return false;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  let eventDate = parseDate(event.eventDate);
-  if (event.eventDate === 'TBA' || !eventDate) eventDate = parseSeriesDate(event.seriesDates);
-  if (!eventDate) return false;
-  eventDate.setHours(0, 0, 0, 0);
-  return eventDate < today;
-}
-
-function parseCSV(csvText) {
-  const lines = csvText.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/(^"|"$)/g, ''));
-  const data = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // split on commas not in quotes
-    const obj = {};
-    headers.forEach((header, idx) => {
-      obj[header] = row[idx] ? row[idx].replace(/(^"|"$)/g, '').trim() : '';
-    });
-    data.push(obj);
-  }
-  return data;
-}
-
-function fetchLastUpdatedDate() {
-  const sheetId = '2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE';
-  const apiKey = ''; // Public CSV doesn't require API key, so leave empty or remove
-  const range = 'Sheet1!Z1';       // Cell with last updated date
-
-  // Because your sheet is published as CSV, let's just fetch the raw CSV text and extract z1 manually
-  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pub?output=csv';
-
+function loadCalendarData() {
   fetch(csvUrl)
     .then(response => response.text())
     .then(csvText => {
-      // parse csv header (first line) and first data row
-      const lines = csvText.split('\n');
-      if (lines.length < 2) {
-        document.getElementById('lastUpdatedDate').textContent = 'N/A';
-        return;
-      }
-      // headers and first data row
-      const headers = lines[0].split(',');
-      const firstRow = lines[1].split(',');
-      // find index of Z1 column (header name: e.g. "Last Updated" or "Series"?)
-      // Since this is a manual cell Z1 (first row and first column), we get headers[25] or so, so just get firstRow[25] +
-      // But safer is just column 25 (Z=26th column, zero-based index 25)
-      if (firstRow.length < 26) {
-        document.getElementById('lastUpdatedDate').textContent = 'N/A';
-        return;
-      }
-      const z1Value = firstRow[25]; // Zero-based index 25 = column Z
-      document.getElementById('lastUpdatedDate').textContent = z1Value.trim() || 'N/A';
-    })
-    .catch(() => {
-      document.getElementById('lastUpdatedDate').textContent = 'Failed to load date';
-    });
-}
-
-function loadCalendarData() {
-  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pub?output=csv';
-
-  fetch(csvUrl)
-    .then(response => {
-      if (!response.ok) throw new Error('Network response was not OK');
-      return response.text();
-    })
-    .then(csvText => {
       const data = parseCSV(csvText);
 
-      const upcomingEvents = [];
-      const pastEvents = [];
+      const upcoming = [];
+      const past = [];
       const upcomingTbody = document.querySelector('#calendarTable tbody');
       const pastTbody = document.querySelector('#pastCalendarTable tbody');
       upcomingTbody.innerHTML = '';
@@ -501,34 +401,34 @@ function loadCalendarData() {
           return '';
         }
 
-        event.series      = getKey(event, ['Series', 'series']);
-        event.eventDate   = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']);
+        event.series = getKey(event, ['Series', 'series']);
+        event.eventDate = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']);
         event.seriesDates = getKey(event, ['Series Dates', 'series dates', 'SeriesDates', 'seriesDates']);
-        event.host        = getKey(event, ['Host', 'host']);
-        event.city        = getKey(event, ['City', 'city']);
-        event.region      = getKey(event, ['Region', 'region']);
-        event.state       = getKey(event, ['State', 'state']);
-        event.venue       = getKey(event, ['Venue', 'venue']);
-        event.venueLink   = getKey(event, ['Venue Link', 'venue link']);
-        event.hostLink    = getKey(event, ['Host Link', 'host link']);
+        event.host = getKey(event, ['Host', 'host']);
+        event.city = getKey(event, ['City', 'city']);
+        event.region = getKey(event, ['Region', 'region']);
+        event.state = getKey(event, ['State', 'state']);
+        event.venue = getKey(event, ['Venue', 'venue']);
+        event.venueLink = getKey(event, ['Venue Link', 'venue link']);
+        event.hostLink = getKey(event, ['Host Link', 'host link']);
         event.seriesDetails = getKey(event, ['Series Details', 'series details']);
-        event.buyIn       = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']);
-        event.type        = getKey(event, ['Type', 'type']);
-        event.moreInfo    = getKey(event, ['More Info', 'more info']);
-        event.event       = getKey(event, ['Event', 'event']);
+        event.buyIn = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']);
+        event.type = getKey(event, ['Type', 'type']);
+        event.moreInfo = getKey(event, ['More Info', 'more info']);
+        event.event = getKey(event, ['Event', 'event']);
         event.regionDisplay = normaliseRegion(event.state || event.region);
 
         if ((event.series && event.eventDate) || (event.series && event.event)) {
           if (isUpcomingEvent(event)) {
-            upcomingEvents.push(event);
+            upcoming.push(event);
           } else if (isPastEvent(event)) {
-            pastEvents.push(event);
+            past.push(event);
           }
         }
       });
 
-      sortEvents(upcomingEvents, true).forEach(event => renderEvent(event, upcomingTbody));
-      sortEvents(pastEvents, false).forEach(event => renderEvent(event, pastTbody));
+      sortEvents(upcoming, true).forEach(event => renderEvent(event, upcomingTbody));
+      sortEvents(past, false).forEach(event => renderEvent(event, pastTbody));
 
       if ($.fn.DataTable.isDataTable('#calendarTable')) {
         tableUpcoming.destroy();
@@ -545,7 +445,7 @@ function loadCalendarData() {
         lengthMenu: [5, 10, 25, 50, 100],
         info: false,
         order: [],
-        destroy: true
+        destroy: true,
       });
 
       tablePast = $('#pastCalendarTable').DataTable({
@@ -556,27 +456,27 @@ function loadCalendarData() {
         lengthMenu: [5, 10, 25, 50, 100],
         info: false,
         order: [],
-        destroy: true
+        destroy: true,
       });
 
-      function populateFilterOptions(selectId, values, allLabel) {
-        const sel = document.getElementById(selectId);
+      function populateFilterOptions(id, values, label) {
+        const sel = document.getElementById(id);
         if (!sel) return;
-        const firstOpt = sel.querySelector('option[value=""]');
+        const first = sel.querySelector('option[value=""]');
         sel.innerHTML = '';
-        if (firstOpt) {
-          sel.appendChild(firstOpt);
+        if (first) {
+          sel.appendChild(first);
         } else {
-          const allOpt = document.createElement('option');
-          allOpt.value = '';
-          allOpt.textContent = allLabel;
-          sel.appendChild(allOpt);
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = label;
+          sel.appendChild(option);
         }
         [...new Set(values.filter(Boolean))].sort().forEach(v => {
-          const opt = document.createElement('option');
-          opt.value = v;
-          opt.textContent = v;
-          sel.appendChild(opt);
+          const option = document.createElement('option');
+          option.value = v;
+          option.textContent = v;
+          sel.appendChild(option);
         });
       }
 
@@ -586,46 +486,68 @@ function loadCalendarData() {
       populateFilterOptions('regionFilter', data.map(e => normaliseRegion(e.State || e.state || e.Region || e.region)), 'All Regions');
       populateFilterOptions('venueFilter', data.map(e => e.Venue || e.venue), 'All Venues');
 
-      const cols = { Series: 2, Host: 6, City: 7, Region: 8, Venue: 9 };
-
       $('#seriesFilter').off('change').on('change', function () {
-        tableUpcoming.column(cols.Series).search(this.value).draw();
-        tablePast.column(cols.Series).search(this.value).draw();
+        tableUpcoming.column(2).search(this.value).draw();
+        tablePast.column(2).search(this.value).draw();
       });
       $('#hostFilter').off('change').on('change', function () {
-        tableUpcoming.column(cols.Host).search(this.value).draw();
-        tablePast.column(cols.Host).search(this.value).draw();
+        tableUpcoming.column(6).search(this.value).draw();
+        tablePast.column(6).search(this.value).draw();
       });
       $('#cityFilter').off('change').on('change', function () {
-        tableUpcoming.column(cols.City).search(this.value).draw();
-        tablePast.column(cols.City).search(this.value).draw();
+        tableUpcoming.column(7).search(this.value).draw();
+        tablePast.column(7).search(this.value).draw();
       });
       $('#regionFilter').off('change').on('change', function () {
-        tableUpcoming.column(cols.Region).search(this.value).draw();
-        tablePast.column(cols.Region).search(this.value).draw();
+        tableUpcoming.column(8).search(this.value).draw();
+        tablePast.column(8).search(this.value).draw();
       });
       $('#venueFilter').off('change').on('change', function () {
-        tableUpcoming.column(cols.Venue).search(this.value).draw();
-        tablePast.column(cols.Venue).search(this.value).draw();
+        tableUpcoming.column(9).search(this.value).draw();
+        tablePast.column(9).search(this.value).draw();
       });
     })
-    .catch(err => {
-      console.error('Error loading calendar data:', err);
+    .catch(() => {
       document.getElementById('calendarError').style.display = 'block';
       document.getElementById('pastCalendarError').style.display = 'block';
     });
 }
 
-$(document).ready(() => {
-  fetchLastUpdatedDate();
-  loadCalendarData();
-  $('#togglePastEvents').on('click', function () {
-    $('#pastEventsSection').toggleClass('collapsed');
-    $(this).text(
-      $('#pastEventsSection').hasClass('collapsed') ? 'Show Past Events' : 'Hide Past Events'
-    );
+</script>
+
+<script>
+  $(document).ready(() => {
+    loadCalendarData();
+
+    $('#togglePastEvents').on('click', () => {
+      $('#pastEventsSection').toggleClass('collapsed');
+      $('#togglePastEvents').text(
+        $('#pastEventsSection').hasClass('collapsed') ? 'Show Past Events' : 'Hide Past Events'
+      );
+    });
+
+    $('#seriesFilter').on('change', function () {
+      tableUpcoming.column(2).search(this.value).draw();
+      tablePast.column(2).search(this.value).draw();
+    });
+    $('#hostFilter').on('change', function () {
+      tableUpcoming.column(6).search(this.value).draw();
+      tablePast.column(6).search(this.value).draw();
+    });
+    $('#cityFilter').on('change', function () {
+      tableUpcoming.column(7).search(this.value).draw();
+      tablePast.column(7).search(this.value).draw();
+    });
+    $('#regionFilter').on('change', function () {
+      tableUpcoming.column(8).search(this.value).draw();
+      tablePast.column(8).search(this.value).draw();
+    });
+    $('#venueFilter').on('change', function () {
+      tableUpcoming.column(9).search(this.value).draw();
+      tablePast.column(9).search(this.value).draw();
+    });
   });
-});
 </script>
 </body>
 </html>
+
