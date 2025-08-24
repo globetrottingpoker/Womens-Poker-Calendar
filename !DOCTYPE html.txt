@@ -8,162 +8,161 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <style>
-/* Your existing styles unchanged */
-body {
-  font-family: 'Inter', Arial, sans-serif;
-  background: #f9fafc;
-  color: #000;
-  margin: 0;
-  padding: 20px;
-}
-h2 {
-  text-align: center;
-  margin-bottom: 6px;
-  color: #000;
-  font-size: 22px;
-}
-#lastUpdatedContainer {
-  max-width: 1200px;
-  margin: 0 auto 12px auto;
-  font-weight: bold;
-  font-size: 16px;
-  text-align: left;
-}
-.filters { max-width:1200px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:8px; }
-.filters select { padding:6px; font-size: 14px; border:1px solid #ccc; border-radius: 4px; }
-.dt-container {
-  overflow-x: auto;
-  margin: 0 auto 40px;
-}
-.toggle-past-btn {
-  display: block;
-  margin: 0 auto 20px;
-  padding: 10px 24px;
-  background: #2e7be6;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
-}
-.toggle-past-btn:focus {
-  outline: none;
-}
-#pastEventsSection.collapsed {
-  display: none;
-}
-table.display {
-  width: 100%;
-  min-width: 1250px;
-  border-collapse: collapse;
-}
-th, td {
-  font-size: 14px;
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #e0e0e0;
-  vertical-align: middle;
-}
-.date-cell {
-  font-weight: 400;
-  font-size: 0.9em;
-  text-align: center;
-  min-width: 44px;
-  padding: 6px 8px;
-}
-.date-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.1;
-}
-.date-month {
-  font-size: 0.9em;
-  text-transform: uppercase;
-  color: #222;
-  letter-spacing: 0.5px;
-  font-weight: 400;
-}
-.date-day {
-  font-size: 1.2em;
-  color: #222;
-  font-weight: 400;
-  line-height: 1.1;
-}
-.flag-cell img {
-  max-width: 32px;
-  margin-right: 8px;
-  vertical-align: middle;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-.series-cell {
-  white-space: normal;
-  min-width: 135px;
-}
-.series-name a,
-.series-name span {
-  font-weight: 600;
-  text-decoration: none;
-}
-.series-name a:hover {
-  text-decoration: underline;
-}
-.series-location {
-  font-size: 1em;
-  color: #000;
-  font-weight: 400;
-  margin-top: 2px;
-}
-.series-dates {
-  font-size: 0.98em;
-  color: #333;
-  margin-top: 2px;
-  font-weight: 400;
-}
-.type-cell {
-  text-align: center;
-  font-size: 1.2em;
-  min-width: 34px;
-}
-.venue-cell a {
-  color: #0066cc;
-  text-decoration: none;
-}
-.venue-cell a:hover {
-  text-decoration: underline;
-}
-.host-cell a {
-  color: #228b22;
-  text-decoration: none;
-  font-weight: 500;
-}
-.host-cell a:hover {
-  text-decoration: underline;
-}
-@media (max-width: 600px) {
-  table.display,
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    background: #f9fafc;
+    color: #000;
+    margin: 0;
+    padding: 20px;
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 6px;
+    color: #000;
+    font-size: 22px;
+  }
+  #lastUpdatedContainer {
+    max-width: 1200px;
+    margin: 0 auto 12px auto;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: left;
+  }
+  .filters { max-width:1200px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:8px; }
+  .filters select { padding:6px; font-size: 14px; border:1px solid #ccc; border-radius: 4px; }
   .dt-container {
-    font-size: 0.9em;
+    overflow-x: auto;
+    margin: 0 auto 40px;
   }
-  th, td {
-    padding: 6px 4px;
+  .toggle-past-btn {
+    display: block;
+    margin: 0 auto 20px;
+    padding: 10px 24px;
+    background: #2e7be6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
   }
-  .state-cell,
-  .moreinfo-cell {
+  .toggle-past-btn:focus {
+    outline: none;
+  }
+  #pastEventsSection.collapsed {
     display: none;
   }
-  .date-cell {
-    min-width: 36px;
+  table.display {
+    width: 100%;
+    min-width: 1250px;
+    border-collapse: collapse;
   }
-}
+  th, td {
+    font-size: 14px;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+  }
+  .date-cell {
+    font-weight: 400;
+    font-size: 0.9em;
+    text-align: center;
+    min-width: 44px;
+    padding: 6px 8px;
+  }
+  .date-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.1;
+  }
+  .date-month {
+    font-size: 0.9em;
+    text-transform: uppercase;
+    color: #222;
+    letter-spacing: 0.5px;
+    font-weight: 400;
+  }
+  .date-day {
+    font-size: 1.2em;
+    color: #222;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+  .flag-cell img {
+    max-width: 32px;
+    margin-right: 8px;
+    vertical-align: middle;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .series-cell {
+    white-space: normal;
+    min-width: 135px;
+  }
+  .series-name a,
+  .series-name span {
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .series-name a:hover {
+    text-decoration: underline;
+  }
+  .series-location {
+    font-size: 1em;
+    color: #000;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .series-dates {
+    font-size: 0.98em;
+    color: #333;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+  .type-cell {
+    text-align: center;
+    font-size: 1.2em;
+    min-width: 34px;
+  }
+  .venue-cell a {
+    color: #0066cc;
+    text-decoration: none;
+  }
+  .venue-cell a:hover {
+    text-decoration: underline;
+  }
+  .host-cell a {
+    color: #228b22;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .host-cell a:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 600px) {
+    table.display,
+    .dt-container {
+      font-size: 0.9em;
+    }
+    th, td {
+      padding: 6px 4px;
+    }
+    .state-cell,
+    .moreinfo-cell {
+      display: none;
+    }
+    .date-cell {
+      min-width: 36px;
+    }
+  }
 </style>
 </head>
 <body>
 <h2>Upcoming Events</h2>
 
-<!-- Last Updated text -->
+<!-- Last Updated -->
 <div id="lastUpdatedContainer">
   Last Updated: <span id="lastUpdatedDate">Loading...</span>
 </div>
@@ -253,10 +252,6 @@ function getFlagCode(region, state, city) {
   if (code === 'cape town') return 'za';
   if (code.length === 2) return code;
   return 'xx';
-}
-
-function isOnlineEvent(event) {
-  return (event.region || '').toLowerCase() === 'x';
 }
 
 function parseDate(dateStr) {
@@ -352,8 +347,8 @@ function renderEvent(event, tbody) {
     !(typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') &&
     (!event.hideFlag || event.hideFlag.toLowerCase() !== 'x')
   ) {
-    if (isOnlineEvent(event)) {
-      // When region is 'X', show globe icon as flag
+    if ((event.region || '').toLowerCase() === 'x') {
+      // Show globe icon instead of flag when region is X
       flagHtml = '<img src="icons/globe.png" alt="Online event" style="max-width:32px; display:block; margin-left:auto; margin-right:auto;" />';
     } else {
       const flagCode = getFlagCode(event.region, event.state, event.city);
@@ -444,15 +439,34 @@ function parseCSV(csvText) {
 }
 
 function fetchLastUpdatedDate() {
-  const sheetId = 'YOUR_SHEET_ID'; // Replace with your actual sheet ID
-  const apiKey = 'YOUR_API_KEY';   // Replace with your Google API Key
+  const sheetId = '2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE';
+  const apiKey = ''; // Public CSV doesn't require API key, so leave empty or remove
   const range = 'Sheet1!Z1';       // Cell with last updated date
 
-  fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
-    .then(response => response.json())
-    .then(data => {
-      const dateStr = data.values && data.values[0] ? data.values[0][0] : 'N/A';
-      document.getElementById('lastUpdatedDate').textContent = dateStr;
+  // Because your sheet is published as CSV, let's just fetch the raw CSV text and extract z1 manually
+  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pub?output=csv';
+
+  fetch(csvUrl)
+    .then(response => response.text())
+    .then(csvText => {
+      // parse csv header (first line) and first data row
+      const lines = csvText.split('\n');
+      if (lines.length < 2) {
+        document.getElementById('lastUpdatedDate').textContent = 'N/A';
+        return;
+      }
+      // headers and first data row
+      const headers = lines[0].split(',');
+      const firstRow = lines[1].split(',');
+      // find index of Z1 column (header name: e.g. "Last Updated" or "Series"?)
+      // Since this is a manual cell Z1 (first row and first column), we get headers[25] or so, so just get firstRow[25] +
+      // But safer is just column 25 (Z=26th column, zero-based index 25)
+      if (firstRow.length < 26) {
+        document.getElementById('lastUpdatedDate').textContent = 'N/A';
+        return;
+      }
+      const z1Value = firstRow[25]; // Zero-based index 25 = column Z
+      document.getElementById('lastUpdatedDate').textContent = z1Value.trim() || 'N/A';
     })
     .catch(() => {
       document.getElementById('lastUpdatedDate').textContent = 'Failed to load date';
@@ -516,7 +530,6 @@ function loadCalendarData() {
       sortEvents(upcomingEvents, true).forEach(event => renderEvent(event, upcomingTbody));
       sortEvents(pastEvents, false).forEach(event => renderEvent(event, pastTbody));
 
-      // Destroy existing tables if already initialized
       if ($.fn.DataTable.isDataTable('#calendarTable')) {
         tableUpcoming.destroy();
       }
