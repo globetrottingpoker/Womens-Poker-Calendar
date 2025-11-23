@@ -519,4 +519,3 @@ window.allEventData = data;
     });
 }
 
-
