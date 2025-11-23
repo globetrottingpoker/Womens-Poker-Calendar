@@ -402,44 +402,45 @@ function loadCalendarData() {
       upcomingTbody.innerHTML = '';
       pastTbody.innerHTML = '';
 
-      data.forEach(event => {
-        if (!event.Series) return; // Don't skip TBA dates
-
-function getKey(obj, keys) {
-  for (const key of keys) {
-    if (obj.hasOwnProperty(key)) return obj[key];
+data.forEach(event => {
+  // Helper: always extract value and convert to a string, then .trim()
+  function getKey(obj, keys) {
+    for (const key of keys) {
+      if (obj.hasOwnProperty(key)) return String(obj[key]).trim();
+    }
+    return '';
   }
-  return '';
-}
 
-if (!event.Series) return; // Only skip missing Series
+  // Only skip if Series is missing (everything else goes through)
+  if (!getKey(event, ['Series', 'series'])) return;
 
-// Map and trim all fields
-event.series = getKey(event, ['Series', 'series']).trim();
-event.eventDate = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']).trim();
-event.seriesDates = getKey(event, ['Series Dates', 'series dates', 'SeriesDates', 'seriesDates']).trim();
-event.host = getKey(event, ['Host', 'host']).trim();
-event.city = getKey(event, ['City', 'city']).trim();
-event.region = getKey(event, ['Region', 'region']).trim();
-event.state = getKey(event, ['State', 'state']).trim();
-event.venue = getKey(event, ['Venue', 'venue']).trim();
-event.venueLink = getKey(event, ['Venue Link', 'venue link']).trim();
-event.hostLink = getKey(event, ['Host Link', 'host link']).trim();
-event.seriesDetails = getKey(event, ['Series Details', 'series details']).trim();
-event.buyIn = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']).trim();
-event.type = getKey(event, ['Type', 'type']).trim();
-event.moreInfo = getKey(event, ['More Info', 'more info']).trim();
-event.event = getKey(event, ['Event', 'event']).trim();
-event.regionDisplay = normaliseRegion(event.state || event.region).trim();
+  // Map and robustly trim all potential fields
+  event.series = getKey(event, ['Series', 'series']);
+  event.eventDate = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']);
+  event.seriesDates = getKey(event, ['Series Dates', 'series dates', 'SeriesDates', 'seriesDates']);
+  event.host = getKey(event, ['Host', 'host']);
+  event.city = getKey(event, ['City', 'city']);
+  event.region = getKey(event, ['Region', 'region']);
+  event.state = getKey(event, ['State', 'state']);
+  event.venue = getKey(event, ['Venue', 'venue']);
+  event.venueLink = getKey(event, ['Venue Link', 'venue link']);
+  event.hostLink = getKey(event, ['Host Link', 'host link']);
+  event.seriesDetails = getKey(event, ['Series Details', 'series details']);
+  event.buyIn = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']);
+  event.type = getKey(event, ['Type', 'type']);
+  event.moreInfo = getKey(event, ['More Info', 'more info']);
+  event.event = getKey(event, ['Event', 'event']);
+  event.regionDisplay = normaliseRegion(event.state || event.region).trim();
 
-// Now push every event with a Series to upcoming/past based on date
-if (event.series) {
-  if (isUpcomingEvent(event)) {
-    upcoming.push(event);
-  } else if (isPastEvent(event)) {
-    past.push(event);
+  // Push EVERY event with a series to upcoming or past
+  if (event.series) {
+    if (isUpcomingEvent(event)) {
+      upcoming.push(event);
+    } else if (isPastEvent(event)) {
+      past.push(event);
+    }
   }
-}        
+});
 
 
 
