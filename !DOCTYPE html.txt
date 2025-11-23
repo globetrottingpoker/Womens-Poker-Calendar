@@ -274,57 +274,44 @@ function isTBA(dateStr) {
     dateStr.trim().toUpperCase() === 'TBA';
 }
 
+function isTBA(dateStr) {
+  return typeof dateStr === 'string' &&
+    dateStr.trim().toUpperCase() === 'TBA';
+}
+
 function getSortableDate(event) {
-  const eventDateStr = event["Event Date"] || '';
+  const eventDateStr = (event["Event Date"] || '').trim();
   const isEventDateTBA = isTBA(eventDateStr);
   const isEventDateOngoing =
-    typeof eventDateStr === 'string' && eventDateStr.trim().toLowerCase() === 'ongoing';
+    eventDateStr.toLowerCase() === 'ongoing';
 
   if (isEventDateOngoing) {
     return -9999999999999; // Top priority for ongoing events
   }
+
   if (isEventDateTBA) {
-    const seriesDate = parseSeriesDate(event["Series Dates"]);
-    if (seriesDate) return seriesDate.getTime();
-    return 9999999999998; // Fallback for TBA with no Series date
-  }
-  if (eventDateStr) {
-    const d = parseDate(eventDateStr);
-    if (d && !isNaN(d)) return d.getTime();
-  }
-  return 9999999999999;
-}
-
-function sortEvents(events, isUpcoming) {
-  return events.slice().sort((a, b) => {
-    const dateA = getSortableDate(a);
-    const dateB = getSortableDate(b);
-    return isUpcoming ? dateA - dateB : dateB - dateA;
-  });
-}  }
-
-  if (
-    event["Event Date"] &&
-    typeof event["Event Date"] === "string" &&
-    event["Event Date"].toUpperCase() === "TBA"
-  ) {
-    // For TBA, try to return series date timestamp for sorting
-    const seriesDate = parseSeriesDate(event["Series Dates"]);
-    if (seriesDate) return seriesDate.getTime();
-    // If no series date, push to bottom but before far future
+    // Use Series Dates for sorting if Event Date is TBA
+    const seriesDateObj = parseSeriesDate(event["Series Dates"]);
+    if (seriesDateObj && !isNaN(seriesDateObj.getTime())) {
+      return seriesDateObj.getTime();
+    }
+    // If not parsable, push after normal events but before far future
     return 9999999999998;
   }
 
-  // For normal date string, parse and return timestamp
-  if (event["Event Date"]) {
-    const d = parseDate(event["Event Date"]);
-    if (d && !isNaN(d)) return d.getTime();
+  // If Event Date is present and valid, use its value
+  if (eventDateStr) {
+    const dateObj = parseDate(eventDateStr);
+    if (dateObj && !isNaN(dateObj.getTime())) {
+      return dateObj.getTime();
+    }
   }
 
-  // Default for any other cases
+  // Default fallback for missing dates
   return 9999999999999;
 }
 
+// Use this sort function for your event list
 function sortEvents(events, isUpcoming) {
   return events.slice().sort((a, b) => {
     const dateA = getSortableDate(a);
@@ -587,4 +574,5 @@ $(document).ready(() => {
   });
 });
 </script>
+
 
