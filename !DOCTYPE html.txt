@@ -273,7 +273,18 @@ function parseSeriesDate(seriesDates) {
 
   return null;
 }
-
+function getSortableDate(event) {
+  // Try parsing the regular Event Date first (skip TBA or blank)
+  const ed = event.eventDate || event['Event Date'];
+  let date = ed && !/tba/i.test(ed) ? new Date(ed) : null;
+  // If no valid date, use Series Dates
+  if (!date || isNaN(date)) {
+    const sd = event.seriesDates || event['Series Dates'];
+    date = parseSeriesDate(sd);
+  }
+  // If all fails, return a very old date (so it'll sort to the bottom)
+  return (date && !isNaN(date)) ? date : new Date(0);
+}
 function sortEvents(events, isUpcoming) {
   return events.slice().sort((a, b) => {
     const dateA = getSortableDate(a);
@@ -389,9 +400,9 @@ function loadCalendarData() {
 
   fetch(csvUrl)
     .then(response => response.text())
-    .then(csvText => {
-      const data = parseCSV(csvText);
-window.allEventData = data;
+.then(csvText => {
+  const data = parseCSV(csvText);
+  window.allEventData = data;  // 
       const upcoming = [];
       const past = [];
       const upcomingTbody = document.querySelector('#calendarTable tbody');
@@ -518,4 +529,3 @@ window.allEventData = data;
       document.getElementById('pastCalendarError').style.display = 'block';
     });
 }
-
