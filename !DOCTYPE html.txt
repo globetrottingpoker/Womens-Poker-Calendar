@@ -251,22 +251,23 @@ function parseDate(dateStr) {
   if (isNaN(date.getTime())) return null;
   return date;
 }
+
 function parseSeriesDate(seriesDates) {
   if (!seriesDates) return null;
 
-  // Match range across two months (January 21 - February 9, 2026)
+  // Match range across two months, year only at END (May 27 - June 3, 2026)
   let matchMulti = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})\s*[-–to]+\s*([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/);
   if (matchMulti) {
     let monthStart = matchMulti[1];
     let dayStart = matchMulti[2];
-    let year = matchMulti[5];
+    let year = matchMulti[5]; // year at end!
     let dateStr = `${monthStart} ${dayStart}, ${year}`;
     const d = new Date(dateStr);
     if (!isNaN(d.getTime())) return d;
   }
 
-  // Match single month (December 4 - 13, 2026)
-  let matchSingle = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})(?:\s*(?:-|–|to)\s*\d{1,2})?,?\s*(\d{4})/);
+  // Match single month with range (December 4 - 13, 2026)
+  let matchSingle = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})(?:\s*[-–to]+\s*\d{1,2})?,?\s*(\d{4})/);
   if (matchSingle) {
     let month = matchSingle[1];
     let day = matchSingle[2];
@@ -276,7 +277,7 @@ function parseSeriesDate(seriesDates) {
     if (!isNaN(d.getTime())) return d;
   }
 
-  // Final fallback: try to parse single date if no range detected
+  // Try single date at end (e.g., April 19, 2026)
   let matchDate = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/);
   if (matchDate) {
     let month = matchDate[1];
@@ -289,8 +290,10 @@ function parseSeriesDate(seriesDates) {
 
   return null;
 }
+
+
  
-}
+
 
 function getSortableDate(event) {
   const eventDateStr = (event.eventDate || '').trim();
@@ -546,4 +549,4 @@ data.forEach(event => {
       document.getElementById('pastCalendarError').style.display = 'block';
     });
 }
-
+function parseSeriesDate(seriesDates)
