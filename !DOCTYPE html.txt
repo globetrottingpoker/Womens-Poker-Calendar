@@ -269,14 +269,39 @@ function parseSeriesDate(seriesDates) {
   return null;
 }
 
+function isTBA(dateStr) {
+  return typeof dateStr === 'string' &&
+    dateStr.trim().toUpperCase() === 'TBA';
+}
+
 function getSortableDate(event) {
-  if (
-    event["Event Date"] &&
-    typeof event["Event Date"] === "string" &&
-    event["Event Date"].toLowerCase() === "ongoing"
-  ) {
+  const eventDateStr = event["Event Date"] || '';
+  const isEventDateTBA = isTBA(eventDateStr);
+  const isEventDateOngoing =
+    typeof eventDateStr === 'string' && eventDateStr.trim().toLowerCase() === 'ongoing';
+
+  if (isEventDateOngoing) {
     return -9999999999999; // Top priority for ongoing events
   }
+  if (isEventDateTBA) {
+    const seriesDate = parseSeriesDate(event["Series Dates"]);
+    if (seriesDate) return seriesDate.getTime();
+    return 9999999999998; // Fallback for TBA with no Series date
+  }
+  if (eventDateStr) {
+    const d = parseDate(eventDateStr);
+    if (d && !isNaN(d)) return d.getTime();
+  }
+  return 9999999999999;
+}
+
+function sortEvents(events, isUpcoming) {
+  return events.slice().sort((a, b) => {
+    const dateA = getSortableDate(a);
+    const dateB = getSortableDate(b);
+    return isUpcoming ? dateA - dateB : dateB - dateA;
+  });
+}  }
 
   if (
     event["Event Date"] &&
@@ -562,3 +587,4 @@ $(document).ready(() => {
   });
 });
 </script>
+
