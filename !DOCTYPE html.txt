@@ -254,7 +254,9 @@ function parseDate(dateStr) {
 
 function parseSeriesDate(seriesDates) {
   if (!seriesDates) return null;
-  let match = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})?/);
+  // Try to match patterns like "December 4 - 13, 2026" or "Dec 4–13, 2026"
+  // This will capture the start month/day/year for sorting
+  let match = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})(?:\s*(?:-|–|to)\s*\d{1,2})?,?\s*(\d{4})/);
   if (match) {
     let month = match[1];
     let day = match[2];
@@ -265,7 +267,7 @@ function parseSeriesDate(seriesDates) {
     }
     let dateStr = `${month} ${day}, ${year}`;
     const d = new Date(dateStr);
-    if (!isNaN(d)) return d;
+    if (!isNaN(d.getTime())) return d;
   }
   return null;
 }
