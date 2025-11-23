@@ -251,30 +251,45 @@ function parseDate(dateStr) {
   if (isNaN(date.getTime())) return null;
   return date;
 }
-
 function parseSeriesDate(seriesDates) {
   if (!seriesDates) return null;
-  // Try to match patterns like "December 4 - 13, 2026" or "Dec 4–13, 2026"
-  // This will capture the start month/day/year for sorting
-  let match = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})(?:\s*(?:-|–|to)\s*\d{1,2})?,?\s*(\d{4})/);
-  if (match) {
-    let month = match[1];
-    let day = match[2];
-    let year = match[3];
-    if (!year) {
-      let yearMatch = seriesDates.match(/(\d{4})/g);
-      year = yearMatch ? yearMatch[yearMatch.length - 1] : new Date().getFullYear();
-    }
+
+  // Match range across two months (January 21 - February 9, 2026)
+  let matchMulti = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})\s*[-–to]+\s*([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/);
+  if (matchMulti) {
+    let monthStart = matchMulti[1];
+    let dayStart = matchMulti[2];
+    let year = matchMulti[5];
+    let dateStr = `${monthStart} ${dayStart}, ${year}`;
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  // Match single month (December 4 - 13, 2026)
+  let matchSingle = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})(?:\s*(?:-|–|to)\s*\d{1,2})?,?\s*(\d{4})/);
+  if (matchSingle) {
+    let month = matchSingle[1];
+    let day = matchSingle[2];
+    let year = matchSingle[3];
     let dateStr = `${month} ${day}, ${year}`;
     const d = new Date(dateStr);
     if (!isNaN(d.getTime())) return d;
   }
+
+  // Final fallback: try to parse single date if no range detected
+  let matchDate = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/);
+  if (matchDate) {
+    let month = matchDate[1];
+    let day = matchDate[2];
+    let year = matchDate[3];
+    let dateStr = `${month} ${day}, ${year}`;
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) return d;
+  }
+
   return null;
 }
-
-function isTBA(dateStr) {
-  return typeof dateStr === 'string' &&
-    dateStr.trim().toUpperCase() === 'TBA';
+ 
 }
 
 function getSortableDate(event) {
