@@ -235,38 +235,22 @@ function getFlagCode(region, state, city) {
   if (code.length === 2) return code;
   return 'xx';
 }
-
-function parseDate(dateStr) {
-  if (!dateStr) return null;
-  if (dateStr.trim().toUpperCase() === 'TBA' || dateStr.trim().toLowerCase() === 'ongoing') return null;
-  let date;
-  if (dateStr.includes('/')) {
-    const [m, d, y] = dateStr.split('/');
-    date = new Date(y, m - 1, d);
-  } else if (dateStr.includes('-')) {
-    date = new Date(dateStr);
-  } else {
-    return null;
-  }
-  if (isNaN(date.getTime())) return null;
-  return date;
-}
 function parseSeriesDate(seriesDates) {
   if (!seriesDates) return null;
 
-  // Match range TWO months, year at END (e.g., "May 27 - June 3, 2026")
-  let matchMulti = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})\s*[-–to]+\s*([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/);
+  // 1. Match range across two months (e.g. "May 27 - June 3, 2026")
+  let matchMulti = seriesDates.match(/^([A-Za-z]+)\s+(\d{1,2})\s*[-–to]+\s*([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})$/);
   if (matchMulti) {
-    let monthStart = matchMulti[1];
-    let dayStart = matchMulti[2];
-    let year = matchMulti[5]; // year is at the end!
-    let dateStr = `${monthStart} ${dayStart}, ${year}`;
+    let month = matchMulti[1];
+    let day = matchMulti[2];
+    let year = matchMulti[5];
+    let dateStr = `${month} ${day}, ${year}`;
     const d = new Date(dateStr);
     if (!isNaN(d.getTime())) return d;
   }
 
-  // Match single month range with year at the end (e.g., "December 4 - 13, 2026")
-  let matchSingle = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2})\s*[-–to]+\s*(\d{1,2}),?\s*(\d{4})/);
+  // 2. Match single month range (e.g. "August 7 - 16, 2026")
+  let matchSingle = seriesDates.match(/^([A-Za-z]+)\s+(\d{1,2})\s*[-–to]+\s*(\d{1,2}),?\s*(\d{4})$/);
   if (matchSingle) {
     let month = matchSingle[1];
     let day = matchSingle[2];
@@ -276,8 +260,8 @@ function parseSeriesDate(seriesDates) {
     if (!isNaN(d.getTime())) return d;
   }
 
-  // Match just a single date (e.g., "April 19, 2026")
-  let matchDate = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/);
+  // 3. Match just a single date (e.g. "April 19, 2026")
+  let matchDate = seriesDates.match(/^([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})$/);
   if (matchDate) {
     let month = matchDate[1];
     let day = matchDate[2];
@@ -288,26 +272,6 @@ function parseSeriesDate(seriesDates) {
   }
 
   return null;
-}
-function getSortableDate(event) {
-  const eventDateStr = (event.eventDate || '').trim();
-  if (eventDateStr.toLowerCase() === 'ongoing') {
-    return -9999999999999;
-  }
-  if (isTBA(eventDateStr)) {
-    const seriesDateObj = parseSeriesDate(event.seriesDates);
-    if (seriesDateObj && !isNaN(seriesDateObj.getTime())) {
-      return seriesDateObj.getTime();
-    }
-    return 9999999999998;
-  }
-  if (eventDateStr) {
-    const dateObj = parseDate(eventDateStr);
-    if (dateObj && !isNaN(dateObj.getTime())) {
-      return dateObj.getTime();
-    }
-  }
-  return 9999999999999;
 }
 
 function sortEvents(events, isUpcoming) {
@@ -400,7 +364,26 @@ function renderEvent(event, tbody) {
   `;
   tbody.appendChild(tr);
 }
-
+function parseCSV(text) {
+  const rows = [];
+  let headers = [];
+  text.trim().split('\n').forEach((line, i) => {
+    const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+    for (let j = 0; j < values.length; j++) {
+      values[j] = values[j].replace(/^"|"$/g, '').trim();
+    }
+    if (i === 0) {
+      headers = values;
+    } else if (values.filter(v => v).length > 0) {
+      const obj = {};
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = values[j] || '';
+      }
+      rows.push(obj);
+    }
+  });
+  return rows;
+}
 function loadCalendarData() {
   const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pub?output=csv';
 
@@ -416,47 +399,39 @@ function loadCalendarData() {
       upcomingTbody.innerHTML = '';
       pastTbody.innerHTML = '';
 
-data.forEach(event => {
-  // Helper: always extract value and convert to a string, then .trim()
-  function getKey(obj, keys) {
-    for (const key of keys) {
-      if (obj.hasOwnProperty(key)) return String(obj[key]).trim();
-    }
-    return '';
-  }
+      data.forEach(event => {
+        function getKey(obj, keys) {
+          for (const key of keys) {
+            if (obj.hasOwnProperty(key)) return String(obj[key]).trim();
+          }
+          return '';
+        }
+        if (!getKey(event, ['Series', 'series'])) return;
+        event.series = getKey(event, ['Series', 'series']);
+        event.eventDate = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']);
+        event.seriesDates = getKey(event, ['Series Dates', 'series dates', 'SeriesDates', 'seriesDates']);
+        event.host = getKey(event, ['Host', 'host']);
+        event.city = getKey(event, ['City', 'city']);
+        event.region = getKey(event, ['Region', 'region']);
+        event.state = getKey(event, ['State', 'state']);
+        event.venue = getKey(event, ['Venue', 'venue']);
+        event.venueLink = getKey(event, ['Venue Link', 'venue link']);
+        event.hostLink = getKey(event, ['Host Link', 'host link']);
+        event.seriesDetails = getKey(event, ['Series Details', 'series details']);
+        event.buyIn = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']);
+        event.type = getKey(event, ['Type', 'type']);
+        event.moreInfo = getKey(event, ['More Info', 'more info']);
+        event.event = getKey(event, ['Event', 'event']);
+        event.regionDisplay = normaliseRegion(event.state || event.region).trim();
 
-  // Only skip if Series is missing (everything else goes through)
-  if (!getKey(event, ['Series', 'series'])) return;
-
-  // Map and robustly trim all potential fields
-  event.series = getKey(event, ['Series', 'series']);
-  event.eventDate = getKey(event, ['Event Date', 'event date', 'EventDate', 'eventDate']);
-  event.seriesDates = getKey(event, ['Series Dates', 'series dates', 'SeriesDates', 'seriesDates']);
-  event.host = getKey(event, ['Host', 'host']);
-  event.city = getKey(event, ['City', 'city']);
-  event.region = getKey(event, ['Region', 'region']);
-  event.state = getKey(event, ['State', 'state']);
-  event.venue = getKey(event, ['Venue', 'venue']);
-  event.venueLink = getKey(event, ['Venue Link', 'venue link']);
-  event.hostLink = getKey(event, ['Host Link', 'host link']);
-  event.seriesDetails = getKey(event, ['Series Details', 'series details']);
-  event.buyIn = getKey(event, ['BuyIn / GTD', 'buyin / gtd', 'BuyIn_GTD']);
-  event.type = getKey(event, ['Type', 'type']);
-  event.moreInfo = getKey(event, ['More Info', 'more info']);
-  event.event = getKey(event, ['Event', 'event']);
-  event.regionDisplay = normaliseRegion(event.state || event.region).trim();
-
-  // Push EVERY event with a series to upcoming or past
-  if (event.series) {
-    if (isUpcomingEvent(event)) {
-      upcoming.push(event);
-    } else if (isPastEvent(event)) {
-      past.push(event);
-    }
-  }
-});
-
-
+        if (event.series) {
+          if (isUpcomingEvent(event)) {
+            upcoming.push(event);
+          } else if (isPastEvent(event)) {
+            past.push(event);
+          }
+        }
+      });
 
       sortEvents(upcoming, true).forEach(event => renderEvent(event, upcomingTbody));
       sortEvents(past, false).forEach(event => renderEvent(event, pastTbody));
@@ -543,3 +518,4 @@ data.forEach(event => {
       document.getElementById('pastCalendarError').style.display = 'block';
     });
 }
+
