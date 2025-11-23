@@ -415,7 +415,7 @@ function parseCSV(csvText) {
 }
 
 function loadCalendarData() {
-  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pubhtml';
+  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFb5W0eV-irQWn1MDU5h3LArwSv2sPto8yh-SjKWhXDZk5h8zHJ43NMeXL7Vfyt-C0IhawjoUqJQLE/pub?output=csv';
 
   fetch(csvUrl)
     .then(response => response.text())
@@ -565,4 +565,5 @@ $(document).ready(() => {
 </script>
 </body>
 </html>
+
 
