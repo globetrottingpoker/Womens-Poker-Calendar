@@ -218,7 +218,7 @@ function escapeHtml(s) {
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#39;',
+      "'": ''
     }[m];
   });
 }
@@ -235,9 +235,10 @@ function getFlagCode(region, state, city) {
   if (code.length === 2) return code;
   return 'xx';
 }
+
 function parseDate(dateStr) {
   if (!dateStr) return null;
-  if (dateStr.toUpperCase() === 'TBA' || dateStr.toLowerCase() === 'ongoing') return null;
+  if (dateStr.trim().toUpperCase() === 'TBA' || dateStr.trim().toLowerCase() === 'ongoing') return null;
   let date;
   if (dateStr.includes('/')) {
     const [m, d, y] = dateStr.split('/');
@@ -274,44 +275,27 @@ function isTBA(dateStr) {
     dateStr.trim().toUpperCase() === 'TBA';
 }
 
-function isTBA(dateStr) {
-  return typeof dateStr === 'string' &&
-    dateStr.trim().toUpperCase() === 'TBA';
-}
-
 function getSortableDate(event) {
-  const eventDateStr = (event["Event Date"] || '').trim();
-  const isEventDateTBA = isTBA(eventDateStr);
-  const isEventDateOngoing =
-    eventDateStr.toLowerCase() === 'ongoing';
-
-  if (isEventDateOngoing) {
-    return -9999999999999; // Top priority for ongoing events
+  const eventDateStr = (event.eventDate || '').trim();
+  if (eventDateStr.toLowerCase() === 'ongoing') {
+    return -9999999999999;
   }
-
-  if (isEventDateTBA) {
-    // Use Series Dates for sorting if Event Date is TBA
-    const seriesDateObj = parseSeriesDate(event["Series Dates"]);
+  if (isTBA(eventDateStr)) {
+    const seriesDateObj = parseSeriesDate(event.seriesDates);
     if (seriesDateObj && !isNaN(seriesDateObj.getTime())) {
       return seriesDateObj.getTime();
     }
-    // If not parsable, push after normal events but before far future
     return 9999999999998;
   }
-
-  // If Event Date is present and valid, use its value
   if (eventDateStr) {
     const dateObj = parseDate(eventDateStr);
     if (dateObj && !isNaN(dateObj.getTime())) {
       return dateObj.getTime();
     }
   }
-
-  // Default fallback for missing dates
   return 9999999999999;
 }
 
-// Use this sort function for your event list
 function sortEvents(events, isUpcoming) {
   return events.slice().sort((a, b) => {
     const dateA = getSortableDate(a);
@@ -321,8 +305,8 @@ function sortEvents(events, isUpcoming) {
 }
 
 function formatDateCell(dateStr) {
-  if (typeof dateStr === 'string' && dateStr.toLowerCase() === 'ongoing') {
-    return `<span style="color:#000; font-weight:bold;">ONGOING</span>`; // Black, bold
+  if (typeof dateStr === 'string' && dateStr.trim().toLowerCase() === 'ongoing') {
+    return `<span style="color:#000; font-weight:bold;">ONGOING</span>`;
   }
   const date = parseDate(dateStr);
   if (!date || isNaN(date)) return escapeHtml(dateStr || '');
@@ -330,7 +314,6 @@ function formatDateCell(dateStr) {
   const day = date.getDate();
   return `<div class="date-stack"><span class="date-month">${month}</span><span class="date-day">${day}</span></div>`;
 }
-
 
 function normaliseRegion(regionValue) {
   if (!regionValue) return '';
@@ -340,7 +323,7 @@ function normaliseRegion(regionValue) {
     mt: 'Malta', cy: 'Cyprus'
   };
   const key = regionValue.toLowerCase().trim();
-  return map[key] || regionValue;
+  return map[key] || regionValue.trim();
 }
 
 function renderEvent(event, tbody) {
@@ -349,13 +332,13 @@ function renderEvent(event, tbody) {
     tournament: ' ',
     cash: ' ',
     mu: ' ',
-    www: ' '
+    www: '💻'
   };
   const typeValue = (event.type || '').toString().trim().toLowerCase();
   const typeEmoji = typeMap[typeValue] || escapeHtml(event.type || '');
 
   let flagHtml = '';
-  if (typeValue !== 'www') { // Blank flag cell if type is www
+  if (typeValue !== 'www') {
     if ((event.region || '').toLowerCase() !== 'x') {
       const flagCode = getFlagCode(event.region, event.state, event.city);
       flagHtml = `<img src="https://flagcdn.com/w80/${flagCode}.png" alt="${flagCode} flag"/>`;
@@ -365,8 +348,7 @@ function renderEvent(event, tbody) {
   const dateCell = formatDateCell(event.eventDate);
   const venueLink = event.venueLink || '';
   const venueName = event.venue || '';
-  const venueHtml =
-    venueLink && venueName ? `<a href="${venueLink}" target="_blank">${escapeHtml(venueName)}</a>` : escapeHtml(venueName);
+  const venueHtml = venueLink && venueName ? `<a href="${venueLink}" target="_blank">${escapeHtml(venueName)}</a>` : escapeHtml(venueName);
   const buyinGtd = escapeHtml(event.buyIn || event['BuyIn / GTD'] || '');
   const host = escapeHtml(event.host || '');
   const hostLink = event.hostLink || '';
@@ -421,7 +403,7 @@ function loadCalendarData() {
       pastTbody.innerHTML = '';
 
       data.forEach(event => {
-        if (!event.Series || !event['Event Date']) return;
+        if (!event.Series) return; // Don't skip TBA dates
 
         function getKey(obj, keys) {
           for (const key of keys) {
@@ -503,8 +485,8 @@ function loadCalendarData() {
         }
         [...new Set(values.filter(Boolean))].sort().forEach(v => {
           const opt = document.createElement('option');
-          opt.value = v;
-          opt.textContent = v;
+          opt.value = v.trim();
+          opt.textContent = v.trim();
           sel.appendChild(opt);
         });
       }
@@ -541,38 +523,4 @@ function loadCalendarData() {
       document.getElementById('pastCalendarError').style.display = 'block';
     });
 }
-
-$(document).ready(() => {
-  loadCalendarData();
-
-  $('#togglePastEvents').on('click', () => {
-    $('#pastEventsSection').toggleClass('collapsed');
-    $('#togglePastEvents').text(
-      $('#pastEventsSection').hasClass('collapsed') ? 'Show Past Events' : 'Hide Past Events'
-    );
-  });
-
-  $('#seriesFilter').on('change', function () {
-    tableUpcoming.column(2).search(this.value).draw();
-    tablePast.column(2).search(this.value).draw();
-  });
-  $('#hostFilter').on('change', function () {
-    tableUpcoming.column(6).search(this.value).draw();
-    tablePast.column(6).search(this.value).draw();
-  });
-  $('#cityFilter').on('change', function () {
-    tableUpcoming.column(7).search(this.value).draw();
-    tablePast.column(7).search(this.value).draw();
-  });
-  $('#regionFilter').on('change', function () {
-    tableUpcoming.column(8).search(this.value).draw();
-    tablePast.column(8).search(this.value).draw();
-  });
-  $('#venueFilter').on('change', function () {
-    tableUpcoming.column(9).search(this.value).draw();
-    tablePast.column(9).search(this.value).draw();
-  });
-});
-</script>
-
 
