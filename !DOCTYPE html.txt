@@ -391,7 +391,7 @@ function loadCalendarData() {
     .then(response => response.text())
     .then(csvText => {
       const data = parseCSV(csvText);
-
+window.allEventData = data;
       const upcoming = [];
       const past = [];
       const upcomingTbody = document.querySelector('#calendarTable tbody');
@@ -518,4 +518,5 @@ function loadCalendarData() {
       document.getElementById('pastCalendarError').style.display = 'block';
     });
 }
+
 
