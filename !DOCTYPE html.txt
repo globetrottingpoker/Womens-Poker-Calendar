@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<!-- Add this in your <head> to include Papa Parse -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
 <style>
 /* Keep your existing CSS here */
 body {
@@ -318,10 +321,10 @@ function normaliseRegion(regionValue) {
 
 function renderEvent(event, tbody) {
   const typeMap = {
-    t: '🏆',
-    tournament: '🏆',
-    cash: '💵',
-    mu: '🤝',
+    t: ' ',
+    tournament: ' ',
+    cash: ' ',
+    mu: ' ',
     www: '' // no icon for www
   };
   const typeValue = (event.type || '').toString().trim().toLowerCase();
@@ -420,7 +423,22 @@ function loadCalendarData() {
   fetch(csvUrl)
     .then(response => response.text())
     .then(csvText => {
-      const data = parseCSV(csvText);
+     const rawData = Papa.parse(csvText, {
+  header: true,
+  skipEmptyLines: true,
+}).data;
+const data = rawData.map(row => {
+  if (row.hasOwnProperty('Series\nApril 19 - 27, 2026')) {
+    row['Series'] = row['Series\nApril 19 - 27, 2026'];
+    delete row['Series\nApril 19 - 27, 2026'];
+  }
+  if (row.hasOwnProperty('Venue\r')) {
+    row['Venue'] = row['Venue\r'];
+    delete row['Venue\r'];
+  }
+  return row;
+});
+
       const upcomingEvents = [];
       const pastEvents = [];
       const upcomingTbody = document.querySelector('#calendarTable tbody');
@@ -565,5 +583,4 @@ $(document).ready(() => {
 </script>
 </body>
 </html>
-
 
