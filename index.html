@@ -264,28 +264,57 @@ function parseDate(dateStr) {
 
 function parseSeriesDate(seriesDates) {
   if (!seriesDates) return null;
-  let match = seriesDates.match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})?/);
-  if (match) {
-    let month = match[1];
-    let day = match[2];
-    let year = match[3] || new Date().getFullYear();
-    let dateStr = `${month} ${day}, ${year}`;
-    const d = new Date(dateStr);
-    if (!isNaN(d)) return d;
-  }
+
+  // Examples supported:
+  // "January 8 - 18, 2026"
+  // "March 26 – April 5, 2026"
+  // "August 7 - 16, 2026"
+  // "September 4 - October 4, 2026"
+  // "April 19 - 27, 2026"
+  // "May 2026" (fallback)
+
+  let text = seriesDates.replace(/–/g, "-").trim();
+
+  // 1. Extract first month + first day
+  let regex = /([A-Za-z]+)\s+(\d{1,2})/;
+  let first = text.match(regex);
+
+  if (!first) return null;
+
+  let month = first[1];
+  let day = first[2];
+
+  // 2. Extract year
+  // last 4 digits anywhere in the string
+  let yearMatch = text.match(/(\d{4})/);
+  let year = yearMatch ? yearMatch[1] : new Date().getFullYear();
+
+  // 3. Build final date
+  let dateStr = `${month} ${day}, ${year}`;
+  let d = new Date(dateStr);
+
+  if (!isNaN(d)) return d;
+
   return null;
 }
 
 function getSortableDate(event) {
-  if (event.eventDate && typeof event.eventDate === 'string' && event.eventDate.toLowerCase() === 'ongoing') {
-    return -9999999999999; // Top priority
+  // Ongoing always at top
+  if (event.eventDate && event.eventDate.toLowerCase() === 'ongoing') {
+    return -9999999999999;
   }
+
+  // 1. Event Date exists and is real
   if (event.eventDate && event.eventDate !== 'TBA') {
     const d = parseDate(event.eventDate);
-    if (d && !isNaN(d)) return d.getTime();
+    if (d) return d.getTime();
   }
+
+  // 2. Event Date is TBA → use first date from Series Dates
   const seriesDate = parseSeriesDate(event.seriesDates);
   if (seriesDate) return seriesDate.getTime();
+
+  // 3. No useful date → push to bottom
   return 9999999999999;
 }
 
@@ -583,4 +612,5 @@ $(document).ready(() => {
 </script>
 </body>
 </html>
+
 
